@@ -4,7 +4,7 @@ Tracking of the Applied Statistics and Data Analysis Course from the MSc. in Eng
 The course is structured as follows:
 ## Part I: Statistical Process Control
 ### Week 1
-1. Introduction
+1. Introduction/n
   1.1 What is Statistical Quality and Process Control?
   1.2 The Magnificient Seven
     1.2.1 Check Sheet
