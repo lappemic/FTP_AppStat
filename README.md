@@ -4,16 +4,16 @@ Tracking of the Applied Statistics and Data Analysis Course from the MSc. in Eng
 The course is structured as follows:
 ## Part I: Statistical Process Control
 ### Week 1
-1. Introduction\n
-  1.1 What is Statistical Quality and Process Control?
-  1.2 The Magnificient Seven
-    1.2.1 Check Sheet
-    1.2.2 Pareto Chart
-    1.2.3 Defect Concentration Diagram, Location Plot
-    1.2.4 Cause-and-Effect Diagram
-  1.3 Excercises
-2. Control Chart
-  2.1 Control Charts versus Hypothesis Testing
+1. Introduction<br/>
+  1.1 What is Statistical Quality and Process Control?<br/>
+  1.2 The Magnificient Seven<br/>
+    1.2.1 Check Sheet<br/>
+    1.2.2 Pareto Chart<br/>
+    1.2.3 Defect Concentration Diagram, Location Plot<br/>
+    1.2.4 Cause-and-Effect Diagram<br/>
+  1.3 Excercises<br/>
+2. Control Chart<br/>
+  2.1 Control Charts versus Hypothesis Testing<br/>
   
 ## Part I: Statistical Process Control:
 ### Week 2
@@ -21,7 +21,7 @@ The course is structured as follows:
     2.2.1 Control Charts for x and R
     2.2.2 Control Charts for x and s
   2.3 Individual Control Charts
-  2.4 Control Charts for Attributes Data - p Chart
+  2.4 Control Charts for Attributes Data - p Chart 
   2.5 Exercises
 
 ## Part I: Statistical Process Control
