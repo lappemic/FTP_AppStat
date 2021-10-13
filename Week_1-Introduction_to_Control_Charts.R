@@ -4,7 +4,11 @@
 # Exercises from the script
 #------------------------------------------------------------------------------
 setwd("~/OneDrive/Learning/MSE/2021hs/FTP_AppStat/Additional_material_AppStat")
-
+#""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+# Importing the standard libraries
+library(dplyr)
+library(ggplot2)
+#""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 #*******************************************************************************
 # Problem 1.3.3
 # The data setsample.datcontains 3 random sampleswith 20 entries. These are 
@@ -88,6 +92,48 @@ pnorm(q = 8.10, mean = mu, sd = sd, lower.tail = FALSE)
 # c.
 8 - qnorm(p = 0.025, mean = mu, sd = sd)
 # A deviation of at most 0.098 mm is allowed to produce at most 5% scrap
+
+#*******************************************************************************
+# Problem 1.3.4 (Simulation of Random Runs)
+# Using the command rnorm generate m = 500 random samples of size n = 5 from a 
+# standard normal distribution. Save the samples as an (m × n)-matrix. Use matrix.
+#*******************************************************************************
+# a. Visualise the samples as runs and be astonished about the big variation 
+#     in the courses.
+# b. Now calculate the average ¯x for each sample and generate a histogram of 
+#     the mean values. From theory, we know that the means are normally 
+#     distributed with parameters µ = 0 and standard deviation σ = 1/√n.
+#     (i) Check this with a quantile-quantile plot. Use qqnorm and qqline.
+#     (ii) Check this graphically using a histogram. 
+#           Use hist(..., freq=FALSE, ...) and curve(dnorm(x,mean=0,sd=1/sqrt(n)),
+#           from=-4, to=4, add=TRUE) adds the theoretical distribution density to
+#           the histogram.
+# c. Repeat the task for n = 2, 10, 100.
+#------------------------------------------------------------------------------
+m <- 500
+n <- 5
+df <- as.data.frame(matrix(rnorm(m*n,mean=0,sd=1), m, n))
+glimpse(df)
+str(df)
+
+# a.
+plot(df)
+
+# b.
+df$mean <- apply(df[,1:n], 1, mean)
+?hist
+hist(df$mean, breaks = 100)
+
+# b. (i)
+qqnorm(df$mean)
+qqline(df$mean, col = "red")
+
+# b. (ii)
+?dnorm
+hist(df$mean, , breaks = 100, feq = FALSE)
+curve(dnorm(x, mean = 0, sd = 1/sqrt(n)), from = -4, to = 4, add = TRUE)
+#*******************************************************************************
+
 
 #*******************************************************************************
 # Problem 2.5.1
