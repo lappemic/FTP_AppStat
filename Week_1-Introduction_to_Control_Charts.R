@@ -152,6 +152,20 @@ head(df)
 str(df)
 summary(df)
 
+# Examining the assumed normal distribution with a qq plot. For this we have
+#   to store the data in a vector.
+
+vec <- c(df$x1, df$x2, df$x3, df$x4, df$x5); vec
+
+qqnorm(vec)
+qqline(vec)
+
+# histogram with estimated normal distribution
+hist(vec, freq = FALSE, breaks = 11)
+curve(dnorm(x, mean = mean(vec), sd = sd(vec)),
+      from = 0.9*min(df), to = 1.1*max(df), add = TRUE)
+# There is no evidence against the assumptino of normal distributed values
+
 # we assume for now sigma = 2.5
 sigma <- 2.5
 nSqrt <- sqrt(nrow(df))
