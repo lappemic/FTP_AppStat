@@ -94,7 +94,7 @@ pnorm(q = 8.10, mean = mu, sd = sd, lower.tail = FALSE)
 # A deviation of at most 0.098 mm is allowed to produce at most 5% scrap
 
 #*******************************************************************************
-# Problem 1.3.4 (Simulation of Random Runs)
+# Problem 1.3.5 (Simulation of Random Runs)
 # Using the command rnorm generate m = 500 random samples of size n = 5 from a 
 # standard normal distribution. Save the samples as an (m × n)-matrix. Use matrix.
 #*******************************************************************************
@@ -110,14 +110,18 @@ pnorm(q = 8.10, mean = mu, sd = sd, lower.tail = FALSE)
 #           the histogram.
 # c. Repeat the task for n = 2, 10, 100.
 #------------------------------------------------------------------------------
-m <- 500
-n <- 5
-df <- as.data.frame(matrix(rnorm(m*n,mean=0,sd=1), m, n))
-glimpse(df)
-str(df)
+n <- 500
+m <- 5
+set.seed(1337)
+df.sim <- as.data.frame(matrix(rnorm(m*n,mean=0,sd=1), m, n))
+glimpse(df.sim)
+str(df.sim)
 
 # a.
-plot(df)
+plot(df.sim[,1], type = "l", ylim = c(-4, 4), ylab = "Simulated values")
+for(i in 1:n){
+  points(df.sim[,i], type = "l", col = i)
+}
 
 # b.
 df$mean <- apply(df[,1:n], 1, mean)
@@ -132,11 +136,13 @@ qqline(df$mean, col = "red")
 ?dnorm
 hist(df$mean, , breaks = 100, feq = FALSE)
 curve(dnorm(x, mean = 0, sd = 1/sqrt(n)), from = -4, to = 4, add = TRUE)
-#*******************************************************************************
+# is this curve really ok?
 
-
 #*******************************************************************************
-# Problem 2.5.1
+# Problem 2.5.1 (Example 15-1 from [23; D. C. Montgomery and G. C. Runger, 
+#   Applied Statistics and Probability for Engineers.]
+# Using R reproduce example 16-1 from [23] to create the
+# appropriate control charts. With the following command you can read the data.
 #*******************************************************************************
 file <- "vane-opening.dat"
 df <- read.table(file, header = T)
@@ -171,3 +177,49 @@ x3 <- df[,3]
 x4 <- df[,4]
 # Control Chart for x5
 x5 <- df[,5]
+
+#*******************************************************************************
+# Problem 2.5.2 (Sheward Control Chart)
+# A quality inspector in a beverage factory is responsible for the accuracy of
+# the ﬁlling machine of a soft drink. She has collected 25 samples consisting of
+# four measurements of ﬁll level [in cm], cf. data set soft-drinks.dat. Read 
+# the data into R.
+#*******************************************************************************
+# a. Examine if the data is from a normal distribution.
+# b. Use the ﬁrst 20 samples as a trial run to create an ¯x chart from an R chart.
+# c. Is the trial run under statistical control?
+# d. Check if the next 5 measured values meet the quality requirements.
+#------------------------------------------------------------------------------
+# a.
+file <- "soft-drinks.dat"
+df <- read.table(file, header = TRUE)
+head(df)
+tail(df)
+str(df)
+
+par(mfrow = c(1,1))
+qqnorm(df$X1, col = "red")
+qqline(df$X1, col = "red")
+
+qqnorm(df$X2, col = "blue")
+qqline(df$X2, col = "blue")
+
+qqnorm(df$X3, col = "green")
+qqline(df$X3, col = "green")
+
+qqnorm(df$X4, col = "orange")
+qqline(df$X4, col = "orange")
+
+# The data is more or less normally distributed even if the points scatter some-
+#   what around the regression line. The last data point is interpreted as an
+#   outlier.
+
+# b.
+m <- ncol(df); m
+df$mean <- apply(df[, 1:m], 1, mean)
+df$sd <- apply(df[, 1:m], 1, sd)
+df$R <- apply(df[, 1:m], 1, function(x){ max(x) - min(x)})
+str(df)
+
+df20 <- df[1:20,]
+str(df20)
