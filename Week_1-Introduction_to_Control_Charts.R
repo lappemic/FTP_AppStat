@@ -24,8 +24,8 @@ library(ggplot2)
 #	Uset.test. Are the requirementsfor thet-test met? Useqqnorm.
 #------------------------------------------------------------------------------
 
-file <- "04 Datasets/sample.dat"
-data <- read.table(file, header = TRUE)
+path <- file.path("04_Datasets", "sample.dat")
+data <- read.table(path, header = TRUE)
 
 # a. to e.
 head(data)
@@ -144,8 +144,8 @@ curve(dnorm(x, mean = 0, sd = 1/sqrt(n)), from = -4, to = 4, add = TRUE)
 # Using R reproduce example 16-1 from [23] to create the
 # appropriate control charts. With the following command you can read the data.
 #*******************************************************************************
-file <- "vane-opening.dat"
-df <- read.table(file, header = T)
+path <- file.path("04_Datasets", "vane-opening.dat")
+df <- read.table(path, header = T)
 df
 
 head(df)
@@ -205,8 +205,8 @@ x5 <- df[,5]
 # d. Check if the next 5 measured values meet the quality requirements.
 #------------------------------------------------------------------------------
 # a.
-file <- "soft-drinks.dat"
-df <- read.table(file, header = TRUE)
+path <- file.path("04_Datasets", "soft-drinks.dat")
+df <- read.table(path, header = TRUE)
 head(df)
 tail(df)
 str(df)

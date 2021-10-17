@@ -11,8 +11,8 @@ setwd("~/OneDrive/Learning/MSE/2021hs/FTP_AppStat/Additional_material_AppStat/04
 #* Western Electric Rules. Just look at the chart for ¯x which is based on 
 #* the chart for R.
 #*******************************************************************************
-file <- "ignition-keys.dat"
-df <- read.table(file, header = TRUE)
+path <- file.path("04_Datasets", "ignition-keys.dat")
+df <- read.table(path, header = TRUE)
 head(df)
 summary(df)
 str(df)
