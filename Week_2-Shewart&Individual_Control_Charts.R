@@ -125,7 +125,25 @@ plot(df20$R, pch = 20, ylim = c(0, 1.5), ylab = "Ranges", main = "R Chart")
 lines(df20$R)
 abline(h = R.CL, lty = c(2, 1, 2))
 text(rep(1,3), R.CL, label = c("LCS", "CL", "UCL"), pos = 3)
+#   REMARK: The trial run is not under control, sample 12 should be deleted.
 
+#   grand average from trial run, i.e. measurements 1 to 20, without 12
+ind <- c(1:11,13:20)
+x.barbar.red <- mean(as.matrix(df20[ind,1:4]))
+#   mean of ranges
+R.bar.red <- mean(df20[ind,"R"])
+#   mean of standard deviations
+s.bar.red <- mean(df20[ind,"sd"])
+#   control limits
+R.CL.red <- c(D3, 1, D4) * R.bar.red;  R.CL.red
+
+# Plotting the R chart again:
+plot(df20$R, pch = 20, ylim = c(0, 1.5), ylab = "Ranges", main = "R Chart")
+lines(df20$R)
+points(12, df20$R[12], col = 2, pch = 4, cex = 4)
+abline(h = R.CL.red, lty = c(2, 1, 2))
+text(rep(1,3), R.CL, label = c("LCS", "CL", "UCL"), pos = 3)
+#   REMARK: The trial run is now under control
 
 
 #*******************************************************************************
