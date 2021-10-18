@@ -4,6 +4,8 @@
 # Exercises from the script
 #------------------------------------------------------------------------------
 
+rm(list=ls(all=TRUE))
+
 #*******************************************************************************
 # Problem 2.5.1 (Example 15-1 from [23; D. C. Montgomery and G. C. Runger, 
 #   Applied Statistics and Probability for Engineers.]
@@ -83,6 +85,17 @@ df$sd <- apply(df[, 1:m], 1, sd)
 df$R <- apply(df[, 1:m], 1, function(x){ max(x) - min(x)})
 str(df)
 
+df20 <- df[1:20,]
+str(df20)
+
+# Calculating the means of each newly added column from trial runs 1 to 20:
+# grand mean of trials
+x.barbar <- mean(as.matrix(df20[,1:4])); x.barbar
+# mean of ranges
+R.bar <- mean(df20$R); R.bar
+# mean of standard deviation of trials
+sd.bar <- mean(df20$sd); sd.bar
+
 # a.
 ## Inspecting normal distribution:
 df.vec <- c(df$X1, df$X2, df$X3, df$X4)
@@ -96,22 +109,10 @@ hist(df.vec, freq = FALSE, breaks = 11, ylim = c(0, 3))
 curve(
   dnorm(x, mean = x.barbar, sd = sd.bar),
   from = min(df.vec)-1, to = max(df.vec)+1,
-  n = 1000, add = TRUE)
+  n = 1001, add = TRUE)
 ## -> NOTE: There are outliers: Data is not normally distributed
 
-
 # b.
-df20 <- df[1:20,]
-str(df20)
-
-# Calculating the means of each newly added column:
-# grand mean of trials
-x.barbar <- mean(as.matrix(df20[,1:4])); x.barbar
-# mean of ranges
-R.bar <- mean(df20$R); R.bar
-# mean of standard deviation of trials
-sd.bar <- mean(df20$sd); sd.bar
-
 D3 <- 0       # from table for n = 4
 D4 <- 2.282   # from table for n = 4
 d2 <- 2.059   # from table for n = 4
@@ -123,7 +124,7 @@ R.CL <- c(D3, 1, D4) * R.bar; R.CL
 plot(df20$R, pch = 20, ylim = c(0, 1.5), ylab = "Ranges", main = "R Chart")
 lines(df20$R)
 abline(h = R.CL, lty = c(2, 1, 2))
-text(rep(1,3), R.CL)
+text(rep(1,3), R.CL, label = c("LCS", "CL", "UCL"), pos = 3)
 
 
 
