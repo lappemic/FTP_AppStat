@@ -96,7 +96,8 @@ R.bar <- mean(df20$R); R.bar
 # mean of standard deviation of trials
 sd.bar <- mean(df20$sd); sd.bar
 
-# a.
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# a. Examine if the data is from a normal distribution.
 ## Inspecting normal distribution:
 df.vec <- c(df$X1, df$X2, df$X3, df$X4)
 qqnorm(df.vec)
@@ -112,7 +113,10 @@ curve(
   n = 1001, add = TRUE)
 ## -> NOTE: There are outliers: Data is not normally distributed
 
-# b.
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# b. Use the ﬁrst 20 samples as a trial run to create an ¯x chart from an R chart.
+# c. Is the trial run under statistical control?
+
 D3 <- 0       # from table for n = 4
 D4 <- 2.282   # from table for n = 4
 d2 <- 2.059   # from table for n = 4
@@ -138,13 +142,45 @@ s.bar.red <- mean(df20[ind,"sd"])
 R.CL.red <- c(D3, 1, D4) * R.bar.red;  R.CL.red
 
 # Plotting the R chart again:
-plot(df20$R, pch = 20, ylim = c(0, 1.5), ylab = "Ranges", main = "R Chart")
+plot(df20$R, pch = 20, ylim = c(0, 1.5), xlim = c(0, 25), ylab = "Ranges", main = "R Chart")
 lines(df20$R)
 points(12, df20$R[12], col = 2, pch = 4, cex = 4)
 abline(h = R.CL.red, lty = c(2, 1, 2))
-text(rep(1,3), R.CL, label = c("LCS", "CL", "UCL"), pos = 3)
+text(rep(1,3), R.CL.red, label = c("LCS", "CL", "UCL"), pos = 3)
 #   REMARK: The trial run is now under control
 
+# Check the remaining 5 measurements:
+abline(v = 20, col = 3, lty = 4)
+points(21:25, df[21:25,"R"])
+#   REMARK: The process is under control
+
+# Plotting the x.bar chart from the R chart
+## For this one needs an estimate for the process standard deviation:
+d2 <- 2.059       # from table for n=4
+sigma.R.hat <- R.bar.red / d2; sigma.R.hat
+
+# and an estimate for the process mean, i.e. for the centreline:
+## this we have already calculated:
+x.barbar.red
+
+# These two values give the control limits of the x.bar char:
+n <- 4
+x.bar.CL <- x.barbar.red + c(-3, 0, 3) * sigma.R.hat / sqrt(n); x.bar.CL
+
+# With the x.bar.CL one can draw now the x.bar chart:
+plot(df20$mean, pch = 20, ylim = c(15, 18), xlim = c(0, 25),
+     ylab = "Mean Values",
+     main = "x.bar Chart (based on R Chart)")
+lines(df20$mean)
+abline(h = x.bar.CL, lty = c(2, 1, 2))
+points(12, df20$mean[12], col = 2, pch = 4, cex = 4)
+text(rep(1, 3), x.bar.CL, label = c("LCS", "CL", "UCL"), pos = 3)
+abline(v = 20, col = 3, lty = 4)
+#   REMARK: The process is under control
+
+# Add the remaining points:
+points(21:25, df$mean[21:25])
+lines(20:25, df$mean[20:25], lty = 2)
 
 #*******************************************************************************
 # Problem 3.6.1 (Western Electric Rules)
