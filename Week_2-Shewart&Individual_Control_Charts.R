@@ -265,4 +265,51 @@ text(rep(1,3), CL.red, label=c("LCL", "CL", "UCL"), pos=3)
 # identify(df$current[-ind])
 #   NOTE: Process still not under control -> 26 is too big
 
-# -> remove measurement 26
+# Remove measurement 26
+# removing measurement 59 and calculating process sd and mean
+ind <- c(26, 59)
+# process mean
+x.bar.red <- mean(df$current[-ind]); x.bar.red
+# moving average
+MR.red <- mean(abs(diff(df$current[-ind]))); MR.red
+# standard deviation
+sigma.hat.red <- MR.red / d2; sigma.hat.red
+
+# Control limits
+CL.red <- x.bar.red + c(-3, 0, 3) * sigma.hat; CL.red
+#   NOTE: Again a negative control limi makes no sense, set LCL to 0:
+CL.red <- pmax(CL.red, c(0, 3)); CL.red
+
+plot(df$current[-ind], pch = 20, ylim = c(0, 70),
+     ylab = "Individual Values",
+     main = "Individuals Control Charts") # make sure to exclude measurement 59
+lines(df$current[-ind])
+abline(h = CL.red, lty = c(2, 1, 2))
+text(rep(1,3), CL.red, label=c("LCL", "CL", "UCL"), pos=3)
+#   NOTE: The process is now under control
+
+#*******************************************************************************
+# Problem 2.5.4 (p Chart)
+# In order to study the production of a lathes machine, the production of the
+#   machine was checked every day for bad parts during one month 
+#   (k = 25 random samples). Recorded were the number of bad parts and produced
+#   objects per day in the data set rejects.dat. Create a control chart 
+#   for attributes using this data.
+#*******************************************************************************
+path <- file.path("04_Datasets", "rejects.dat")
+df <- read.table(path, header = TRUE)
+
+head(df)
+tail(df)
+str(df)
+summary(df)
+
+# d denotes the bad parts
+# n denotes the produced parts
+
+# Calculate proportion of bad parts
+df$p <- df$d / df$n; head(df)
+
+# we calculate the process mean proportion of bad parts
+p.bar <- sum(df$d) / sum(df$n); p.bar
+
