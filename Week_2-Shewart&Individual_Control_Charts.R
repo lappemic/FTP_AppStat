@@ -1,5 +1,5 @@
 ################################################################################
-# AppStat Exercises from week 3
+# AppStat Exercises from week 2
 ################################################################################
 # Exercises from the script
 #------------------------------------------------------------------------------
@@ -183,19 +183,11 @@ points(21:25, df$mean[21:25])
 lines(20:25, df$mean[20:25], lty = 2)
 
 #*******************************************************************************
-# Problem 3.6.1 (Western Electric Rules)
-#* Examine if the process of Ex. 2.2.1 is under control according to the 
-#* Western Electric Rules. Just look at the chart for ¯x which is based on 
-#* the chart for R.
+# Problem 2.5.3 (Individual Control Chart)
+# In the production of X-ray tubes, the leakage current is a critical quality 
+# variable. You ﬁnd the data in the ﬁle leakage-current.dat.
 #*******************************************************************************
-path <- file.path("04_Datasets", "ignition-keys.dat")
-df <- read.table(path, header = TRUE)
-head(df)
-summary(df)
-str(df)
-
-m <- length(df); m
-df$mean <- apply(df[,1:m], 1, mean)
-df$sd <- apply(df[,1:m], 1, sd)
-df$R <- apply(df[,1:m], 1, function(x){ max(x) - min(x) })
-str(df)
+# a. Examine with a control chart for individual measurements whether the 
+#     production process is under control.
+# b. Calculate an estimate for the process mean and process standard deviation.
+#------------------------------------------------------------------------------
