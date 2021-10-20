@@ -235,3 +235,34 @@ plot(df$current, pch = 20, ylim = c(0, 70),
 lines(df$current)
 abline(h = CL, lty = c(2, 1, 2))
 text(rep(1, 3), CL, label = c("LCS", "CL", "UCL"), pos = 3)
+# identify(df$current)  # decomment and click in the graphic to identify outliers
+                        #   finish by clicking on "finish" in the top right of
+                        #   of the graphic
+#   NOTE: The Process is not under control, measurement 59 is too big
+#         -> Remove this point to calculate the process standard deviation and
+#             process mean.
+
+# removing measurement 59 and calculating process sd and mean
+ind <- 59
+# process mean
+x.bar.red <- mean(df$current[-ind]); x.bar.red
+# moving average
+MR.red <- mean(abs(diff(df$current[-ind]))); MR.red
+# standard deviation
+sigma.hat.red <- MR.red / d2; sigma.hat.red
+
+# Control limits
+CL.red <- x.bar.red + c(-3, 0, 3) * sigma.hat; CL.red
+#   NOTE: Again a negative control limi makes no sense, set LCL to 0:
+CL.red <- pmax(CL.red, c(0, 3)); CL.red
+
+plot(df$current[-ind], pch = 20, ylim = c(0, 70),
+     ylab = "Individual Values",
+     main = "Individuals Control Charts") # make sure to exclude measurement 59
+lines(df$current[-ind])
+abline(h = CL.red, lty = c(2, 1, 2))
+text(rep(1,3), CL.red, label=c("LCL", "CL", "UCL"), pos=3)
+# identify(df$current[-ind])
+#   NOTE: Process still not under control -> 26 is too big
+
+# -> remove measurement 26
