@@ -190,4 +190,48 @@ lines(20:25, df$mean[20:25], lty = 2)
 # a. Examine with a control chart for individual measurements whether the 
 #     production process is under control.
 # b. Calculate an estimate for the process mean and process standard deviation.
+
+## Individual Control Charts are used where the sample size n = 1. This is the 
+##  case in i.e. in the following examples:
+##    - Automatic checks, where every produced part can be controlled
+##    - If the production of a part takes a lot of time, it makes little sense
+##        to create groups larger than 1
+##    - If the difference of a repeated meadurement cannot be attributed to the
+##        process variation, but to the measuring methods
+
+## Control charts for individual measurements use the moving average of two
+##    successive observations to measure the process variability.
 #------------------------------------------------------------------------------
+path <- file.path("04_Datasets", "leakage-current.dat")
+df <- read.table(path, header = TRUE)
+head(df)
+tail(df)
+str(df)
+summary(df)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# a. Examine with a control chart for individual measurements whether the 
+#     production process is under control.
+
+# Calculate an estimate for the process mean
+x.bar <- mean(df$current); x.bar
+
+# To calculate the moving average, one can use the R-command diff to calculate
+#   the successive differences, of which we calculate the absolute values and
+#   then the mean value thereof:
+MR <- mean(abs(diff(df$current))); MR
+
+# Construct the control chart by calculating an estimate for the process 
+#   standard deviation
+d2 <- 1.128       # from table for n = 1
+sigma.hat <- MR/d2; sigma.hat
+
+CL <- x.bar + c(-3, 0, 3) * sigma.hat; CL
+#   NOTE: Negative Control limits make no sense. So set LCL to 0:
+CL <- pmax(CL, c(0, 3)); CL
+plot(df$current, pch = 20, ylim = c(0, 70),
+     ylab = "Individual Values",
+     main = "Individuals Control Charts")
+lines(df$current)
+abline(h = CL, lty = c(2, 1, 2))
+text(rep(1, 3), CL, label = c("LCS", "CL", "UCL"), pos = 3)
