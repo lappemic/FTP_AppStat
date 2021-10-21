@@ -289,7 +289,7 @@ text(rep(1,3), CL.red, label=c("LCL", "CL", "UCL"), pos=3)
 #   NOTE: The process is now under control
 
 #*******************************************************************************
-# Problem 2.5.4 (p Chart)
+# Problem 2.5.4 (p Chart - Control Chart for attribute data)
 # In order to study the production of a lathes machine, the production of the
 #   machine was checked every day for bad parts during one month 
 #   (k = 25 random samples). Recorded were the number of bad parts and produced
@@ -313,3 +313,41 @@ df$p <- df$d / df$n; head(df)
 # we calculate the process mean proportion of bad parts
 p.bar <- sum(df$d) / sum(df$n); p.bar
 
+# Centrelines
+UCL <- p.bar + 3 * sqrt(p.bar * (1 - p.bar) / df$n); UCL
+LCL <- p.bar - 3 * sqrt(p.bar * (1 - p.bar) / df$n); LCL
+
+plot(df$p, pch = 20, ylim = c(0, 0.07),
+     ylab = "Relative frequencies",
+     main = "p Chart (Attribute data)")
+lines(df$p)
+lines(UCL, lty = 2)
+lines(LCL, lty = 2)
+text(rep(1,3), c(LCL[3], p.bar, UCL[3]), label=c("LCL", "CL", "UCL"), pos=3)
+#   NOTE: Process ont under control
+# identify(df$p)
+# -> Measurements 12, 15, 22 are outliers
+
+# Control Chart with reduced data
+ind <- c(12, 22)    # Because measurement is below LCL this is irrelevant
+df.red <- df[-ind,]; str(df.red)
+
+# proportion of bad parts
+p.bar.red <- sum(df.red$d) / sum(df.red$n); p.bar.red
+
+# Centrelines
+UCL.red <- p.bar.red + 3 * sqrt(p.bar.red * (1 - p.bar.red) / df.red$n); UCL
+LCL.red <- p.bar.red - 3 * sqrt(p.bar.red * (1 - p.bar.red) / df.red$n); LCL
+
+plot(df.red$p, pch = 20, ylim = c(0, 0.07),
+     ylab = "Relative frequencies",
+     main = "p Chart (Attribute data)")
+lines(df.red$p)
+lines(UCL.red, lty = 2)
+lines(LCL.red, lty = 2)
+text(rep(1,3), c(LCL.red[1], p.bar.red, UCL.red[1]), 
+     label=c("LCL", "CL", "UCL"), pos=3)
+
+#   NOTE: The trial run is under control and the control chart can now be
+#         used for process monitoring because falling below LCL of the relative
+#         frequency with i=14 (previously i=15) is irrelevant.
