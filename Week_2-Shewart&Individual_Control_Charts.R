@@ -350,4 +350,4 @@ text(rep(1,3), c(LCL.red[1], p.bar.red, UCL.red[1]),
 
 #   NOTE: The trial run is under control and the control chart can now be
 #         used for process monitoring because falling below LCL of the relative
-#         frequency with i=14 (previously i=15) is irrelevant.
+#         frequency with i=14 (previously i=15) is irrelevant
