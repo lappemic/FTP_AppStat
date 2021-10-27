@@ -68,7 +68,7 @@ x5 <- df[,5]
 # the data into R.
 #*******************************************************************************
 # a. Examine if the data is from a normal distribution.
-# b. Use the ﬁrst 20 samples as a trial run to create an ¯x chart from an R chart.
+# b. Use the ﬁrst 20 samples as a trial run to create an x.bar chart from an R chart.
 # c. Is the trial run under statistical control?
 # d. Check if the next 5 measured values meet the quality requirements.
 #------------------------------------------------------------------------------
@@ -114,7 +114,8 @@ curve(
 ## -> NOTE: There are outliers: Data is not normally distributed
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# b. Use the ﬁrst 20 samples as a trial run to create an ¯x chart from an R chart.
+# b. Use the ﬁrst 20 samples as a trial run to create an x.bar chart from an 
+# R chart.
 # c. Is the trial run under statistical control?
 
 D3 <- 0       # from table for n = 4
@@ -128,7 +129,7 @@ R.CL <- c(D3, 1, D4) * R.bar; R.CL
 plot(df20$R, pch = 20, ylim = c(0, 1.5), ylab = "Ranges", main = "R Chart")
 lines(df20$R)
 abline(h = R.CL, lty = c(2, 1, 2))
-text(rep(1,3), R.CL, label = c("LCS", "CL", "UCL"), pos = 3)
+text(rep(1,3), R.CL, label = c("LCL", "CL", "UCL"), pos = 3)
 #   REMARK: The trial run is not under control, sample 12 should be deleted.
 
 #   grand average from trial run, i.e. measurements 1 to 20, without 12
