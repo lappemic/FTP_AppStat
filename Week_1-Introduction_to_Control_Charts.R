@@ -3,12 +3,7 @@
 ################################################################################
 # Exercises from the script
 #------------------------------------------------------------------------------
-setwd("~/OneDrive/Learning/MSE/2021hs/FTP_AppStat/Additional_material_AppStat")
-#""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-# Importing the standard libraries
-library(dplyr)
-library(ggplot2)
-#""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 #*******************************************************************************
 # Problem 1.3.3
 # The data setsample.datcontains 3 random sampleswith 20 entries. These are 
