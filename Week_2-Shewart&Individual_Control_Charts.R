@@ -383,3 +383,21 @@ pbinom(q = q, size = n, prob = p)
 # c. more than one head -> P(X > 1)
 q = 1
 pbinom(q = q, size = n, prob = p, lower.tail = FALSE)
+
+
+#*******************************************************************************
+# Problem 2.5.6 (Binomial Distribution II)
+# There are two possibilities in an experiment: success with probability p and
+# failure with probability 1 − p. Let X be the random variable whose values 
+# x ∈ { 0, 1, 2, . . . , n } represent the number of successes in n trials.
+# Determine the probability distribution of X.
+#*******************************************************************************
+# For n trials, there are exactly 
+#       n!/(x!*(n-x)!) 
+# arrangements with x successes and n-x failures. This is how one gets the
+# binomial distribution:
+#
+# P(X=x) = n!/(x!*(n-x)!) * p^x * (1-p)^(n-x)
+
+#
+# 
