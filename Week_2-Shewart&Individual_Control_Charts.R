@@ -351,3 +351,35 @@ text(rep(1,3), c(LCL.red[1], p.bar.red, UCL.red[1]),
 #   NOTE: The trial run is under control and the control chart can now be
 #         used for process monitoring because falling below LCL of the relative
 #         frequency with i=14 (previously i=15) is irrelevant
+
+
+#*******************************************************************************
+# Problem 2.5.5 (Binomial Distribution I)
+# An experiment consists of ﬁve independent coin throws with an asymmetrical 
+# coin. For every roll, head is likely to top with the probability 0.53. 
+# Determine the probability for
+#*******************************************************************************
+# a. exactly two times head.
+# b. a maximum of three times head.
+# c. more than one head.
+#------------------------------------------------------------------------------
+
+# The random variable X is binomial distributed with parameters n = 5 and
+# p = 0.53.
+n = 5
+p = 0.53
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# a. exactly two times head out of 5 tries -> P(X = 2):
+x = 2
+dbinom(x = 2, size = n, prob = p)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# b. a maximum of three times head -> P(X <= 3)
+q = 3
+pbinom(q = q, size = n, prob = p)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# c. more than one head -> P(X > 1)
+q = 1
+pbinom(q = q, size = n, prob = p, lower.tail = FALSE)
