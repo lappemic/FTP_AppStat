@@ -97,3 +97,98 @@ text(rep(1, 1), x.bar.CL, labels = c("LCL", "CL", "UCL"), pos = 3)
 #* Calculate the probability of an omitted alarm if 
 #* ∆µ = µ_1 − µ.bar_0 = δ σ.bar = 0.015 cm.
 #*******************************************************************************
+#* loading df of Ex. 2.2.1
+path <- file.path("04_Datasets", "ignition-keys.dat")
+df <- read.table(path, header = TRUE)
+str(df)
+
+# mean values, standard deviations and ranges
+df$mean <- apply(df[,1:4], 1, mean); df$mean
+df$sd <- apply(df[,1:4], 1, sd); df$sd
+df$R <- apply(df[,1:4], 1, function(x){ max(x) - min(x)}); df$R
+str(df)
+
+# first we check if the process is under control with the x.bar chart
+# (based on s chart)
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+# s Chart
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+# mean of standard deviations
+s.bar <- mean(df$sd); s.bar
+B3 <- 0       # from table for n=4
+B4 <- 2.266   # from table for n=4
+s.CL <- c(B3, 1, B4) * s.bar; s.CL
+
+# plotting s chart
+plot(df$sd, pch = 20, ylim = c(0, 0.012),
+     ylab = "Standard Deviations", main = "s Chart")
+lines(df$sd)
+abline(h = s.CL, lty = c(2, 1, 2))
+text(rep(1,1), s.CL, labels = c("LCL", "CL", "UCL"), pos = 3)
+#   NOTE: Process is under control. 
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+# x.bar Chart
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+# estimatioin of the process standard deviations
+c4 <- 0.9213
+sigma.s.hat <- s.bar / c4; sigma.hat
+
+# calculation of process mean
+x.barbar <- mean(as.matrix(df[,1:4])); x.barbar
+
+# UCL and LCL
+n <- 4
+x.bar.CL <- x.barbar + c(-3, 0, 3) * sigma.s.hat / sqrt(n); x.bar.CL
+
+# plotting x.bar Chart
+plot(df$mean, pch = 20, ylim = c(0.19, 0.21),
+     ylab = "Mean Values", main = "x.bar Chart (based on s Chart)")
+lines(df$mean)
+abline(h = x.bar.CL, lty = c(2, 1, 2))
+text(rep(1,3), x.bar.CL, labels = c("LCL", "CL", "UCL"), pos = 3)
+#   NOTE: The process is under control
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+# Power function
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+# target value
+mu0 <- x.barbar
+
+# standard deviation
+sigma <- sigma.s.hat
+
+# q-quantile
+alpha <- 0.0027
+z.q <- qnorm(1 - alpha/2); z.q
+
+# define power function
+func.g.tilde <- function(delta, n){
+                        pnorm(delta * sqrt(n) - z.q) + 
+                        pnorm(-delta * sqrt(n) - z.q)
+}
+
+# graphic
+curve(func.g.tilde(delta = x, n = 4), from = -4, to = 4, lty = 1,
+      xlab = "delta", ylab = "Power Function", main = "Power Function")
+abline(v = 0, h = 0)
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   OC Curve
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   define OC curve
+func.OC <- function(delta, n) { 1 - func.g.tilde(delta, n) }
+
+#   graphic
+curve(func.OC(delta=x, n=4), from=0, to=4, lty=1, 
+      xlab="delta", ylab="OC", main="OC Curve")
+abline(v=0, h=0)
+
+
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   Probability of an omitted alarm
+#--------------------------------------------------------------------------------------------------------------------------------------------------
