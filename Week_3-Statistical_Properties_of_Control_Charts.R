@@ -192,3 +192,22 @@ abline(v=0, h=0)
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 #   Probability of an omitted alarm
 #--------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Not yet done
+
+#*******************************************************************************
+# Problem 3.6.3 (Geometric distribution I)
+#* For each throw the probability to hit a basketball in the opponent’s basket
+#* is p = 0.3. The ball is thrown on the basket until it strucks for the ﬁrst
+#* time. Determine the probability for
+#*   a. exactly two throws.
+#*   b. at most three throws.
+#*   c. more than one throw.
+#*******************************************************************************
+#* The random variable X denotes the number of throws. Therefore one obtains
+#* a. P(X = 2)
+dgeom(x = 2 - 1, prob = 0.3)
+# b. P(X <= 3)
+pgeom(q = 3 - 1, prob = 0.3)
+# c. P(x > 1)
+pgeom(q = 1 - 1, prob = 0.3, lower.tail = FALSE)
