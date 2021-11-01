@@ -315,5 +315,49 @@ lines(c(0,delta), c(ARL,ARL), col=2, lty=2)
 abline(v=delta, col=2, lty=2)
 
 
-#--------------------------------------------------------------------------------------------------------------------------------------------------
+#*******************************************************************************
+# Problem 3.6.7 (Process capability ratios)
+#* Estimate the capability process ratio of Ex. 2.2.1 with the tolerance limits
+#* USL = 0.223 mm and LSL = 0.177 mm. The target value µ_0 and the process 
+#* standard deviation σ are unknown and can be estimated from the data.
+#*******************************************************************************
+rm(list=ls(all=TRUE))
 
+# loading dataset
+path <- file.path("04_Datasets", "ignition-keys.dat")
+df <- read.table(path, header = TRUE)
+str(df)
+
+# means, standard deviations and ranges
+df$mean <- apply(df[, 1:4], 1, mean)
+df$sd <- apply(df[, 1:4], 1, sd)
+df$R <- apply(df[, 1:4], 1, function(x){ max(x) - min(x) })
+str(df)
+
+# tolerance limits
+USL <- 0.223
+LSL <- 0.177
+
+# process mean value
+x.barbar <- mean(as.matrix(df[, 1:4])); x.barbar
+
+# mean of process standard deviation from the standard deviations
+s.bar <- mean(df$sd); s.bar
+c4 <- 0.9213     #   from table for n=4
+sigma.s.hat <- s.bar / c4;    sigma.s.hat
+
+#   estimation of the process standard deviation from the ranges
+d2 <- 2.059     #   from table for n=4
+R.bar <- mean(df$R)
+sigma.R.hat <- R.bar / d2;    sigma.R.hat
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   Estimation of the Approximate Capability Process Ratio
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+PCR.s.hat <- (USL - LSL) / (6*sigma.s.hat);   PCR.s.hat
+##  1.406035
+
+PCR.R.hat <- (USL - LSL) / (6*sigma.R.hat);   PCR.R.hat
+##  1.409435
+
+#   REMARK: The process capability is guaranteed.
