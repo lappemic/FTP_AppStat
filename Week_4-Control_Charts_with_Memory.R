@@ -146,3 +146,68 @@ text(rep(2, 3), c(-1, 1) * H, label = c("Lower CUSUM", "Upper CUSUM"), pos = 3)
 #* -----------------------------------------------------------------------------
 #* removing all variables in the environment
 rm(list=ls(all=TRUE))
+
+# Number of random samples
+k <- 50
+
+# Sample size
+n <- 8
+
+# Target value
+mu_0 <- 10
+
+# Standard deviation
+sigma <- 2
+
+# Creating dataset
+set.seed(1337)
+data.simulated <- rnorm(k*n, mean = mu_0, sd = sigma)
+df <- data.frame(matrix(data.simulated, nrow = 50, ncol = n))
+str(df)
+
+# means, standard deviations and Ranges
+df$mean <- apply(df[, 1:n], 1, mean)
+df$sd <- apply(df[, 1:n], 1, sd)
+df$R <- apply(df[, 1:n], 1, function(x){ max(x) - min(x)})
+str(df)
+#* -----------------------------------------------------------------------------
+#* a. Create a CUSUM chart of the simulated data. You can estimate the process 
+#*    standard deviation from the simulated data.
+#* -----------------------------------------------------------------------------
+
+# mean of standard deviations
+s.bar <- mean(df$sd); s.bar
+
+# process standard deviation
+# wrong: c4 <- 0.9213 because n = 8 and not 4!!!!
+c4 <- 0.9650     #   from table for n=8
+sigma.hat <- s.bar / c4; sigma.hat
+
+# reference value
+K <- 0.5 * sigma.hat; K
+
+# decision interval
+H <- 5 * sigma.hat; H
+
+# C^+ and C^- CUSUMs
+C.plus <- NULL
+C.plus[1] <- 0
+C.minus <- NULL
+C.minus[1] <- 0
+
+for(i in 1:k) {
+  C.plus[i+1] <- max(0, df$mean[i] - (mu_0+K) + C.plus[i])
+  C.minus[i+1] <- max(0, (mu_0-K) - df$mean[i] + C.minus[i])
+}
+C.plus
+C.minus
+
+# CUSUM Chart
+plot(0:k, C.plus, col = "black", pch = 20, ylim = c(-1, 1)*H,
+     xlab = "Index", ylab = "Cumulative Sums", main = "CUSUM with simulated data")
+lines(0:k, C.plus, col = "black")
+points(0:k, -C.minus, pch = 20, col = "gray")
+lines(0:k, -C.minus, col = "gray")
+abline(h = c(-1, 0, 1) * H, lty = c(2, 1, 2))
+text(rep(2, 3), c(-1, 1) * H, label = c("Lower CUSUM", "Upper CUSUM"), pos = 3)
+
