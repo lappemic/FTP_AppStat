@@ -125,7 +125,7 @@ points(0:n, -C.minus, col = "gray")
 lines(0:n, -C.minus, col = "gray")
 abline(h = c(-1, 0, 1) * H, lty = c(2, 1, 2))
 text(rep(2, 3), c(-1, 1) * H, label = c("Lower CUSUM", "Upper CUSUM"), pos = 3)
-# identify(C.plus)
+# identify(C.plus) 
 #     NOTE: Process out of controll from measearment i = 12 on
 
 
@@ -160,7 +160,7 @@ mu_0 <- 10
 sigma <- 2
 
 # Creating dataset
-set.seed(1337)
+set.seed(1)
 data.simulated <- rnorm(k*n, mean = mu_0, sd = sigma)
 df <- data.frame(matrix(data.simulated, nrow = 50, ncol = n))
 str(df)
@@ -210,4 +210,62 @@ points(0:k, -C.minus, pch = 20, col = "gray")
 lines(0:k, -C.minus, col = "gray")
 abline(h = c(-1, 0, 1) * H, lty = c(2, 1, 2))
 text(rep(2, 3), c(-1, 1) * H, label = c("Lower CUSUM", "Upper CUSUM"), pos = 3)
+#*------------------------------------------------------------------------------
+#* b. Now add a synthetic process drift of ∆µ = 1.4 from sample i = 21 to the 
+#*    data and look at the resulting CUSUM chart. 
+#*    Use data.mod <- rbind(data[1:20,1:n], data[21:50,1:n]+1.4) to modify the
+#*    simulated data.
+#*------------------------------------------------------------------------------
+#*
+#* Adding synthetic process drift to he data
+df.mod <- rbind(df[1:20, 1:n], df[21:50, 1:n] + 1.4)
+str(df.mod)
 
+# means, standard deviations and Ranges
+df.mod$mean <- apply(df.mod[, 1:n], 1, mean)
+df.mod$sd <- apply(df.mod[, 1:n], 1, sd)
+df.mod$R <- apply(df.mod[, 1:n], 1, function(x){ max(x) - min(x)})
+str(df.mod)
+
+# mean of standard deviations
+s.bar.mod <- mean(df.mod$sd); s.bar.mod
+
+# process standard deviation
+# wrong: c4 <- 0.9213 because n = 8 and not 4!!!!
+c4 <- 0.9650     #   from table for n=8
+sigma.hat.mod <- s.bar / c4; sigma.hat.mod
+
+# reference value
+K.mod <- 0.5 * sigma.hat; K.mod
+
+# decision interval
+H.mod <- 5 * sigma.hat; H.mod
+
+# C^+ and C^- CUSUMs
+C.plus.mod <- NULL
+C.plus.mod[1] <- 0
+C.minus.mod <- NULL
+C.minus.mod[1] <- 0
+
+for(i in 1:k) {
+  C.plus.mod[i+1] <- max(0, df.mod$mean[i] - (mu_0+K.mod) + C.plus.mod[i])
+  C.minus.mod[i+1] <- max(0, (mu_0-K.mod) - df.mod$mean[i] + C.minus.mod[i])
+}
+C.plus.mod
+C.minus.mod
+
+# CUSUM Chart
+plot(0:k, C.plus.mod, col = "black", pch = 20, ylim = c(-1, 2)*H.mod,
+     xlab = "Index", ylab = "Cumulative Sums", main = "CUSUM with simulated data")
+lines(0:k, C.plus.mod, col = "black")
+points(0:k, -C.minus.mod, pch = 20, col = "gray")
+lines(0:k, -C.minus.mod, col = "gray")
+abline(h = c(-1, 0, 1) * H.mod, lty = c(2, 1, 2))
+text(rep(4, 3), c(-1, 1) * H.mod, label = c("Lower CUSUM", "Upper CUSUM"), pos =
+#   NOTE: The process is not under control anymore!
+
+#*------------------------------------------------------------------------------
+#* c. From time i = 20 plot the expected line on which the process drifts away.
+#*------------------------------------------------------------------------------
+3)
+curve(func.drift(x), add=TRUE, col="red")
