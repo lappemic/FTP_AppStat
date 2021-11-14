@@ -322,3 +322,67 @@ lines(0:k, -C.minus.mod, col = "gray")
 abline(h = c(-1, 0, 1) * H.mod, lty = c(2, 1, 2))
 text(rep(4, 3), c(-1, 1) * H.mod, label = c("Lower CUSUM", "Upper CUSUM"), pos = 3)
 curve(func.drift(x), add=TRUE, col="red")
+
+
+#*******************************************************************************
+#* Problem 4.3.4 (EWMA of Random Samples). A quality inspector in a beverage 
+#* factory is responsible for the accuracy of the bottling machine of a soft 
+#* drink. She collected 25 random samples consisting of four measurements of ﬁll
+#* level [in cm], see data set soft-drinks.dat. Examine if the process is under
+#* control with a EWMA chart. The target value is µ0 = 16.0. You can estimate 
+#* the process standard deviation with σ.hat = s.bar / c4 , where s.bar is the 
+#* mean of the standard deviations of the individual samples, and the constant
+#* c4 depends only on the sample size n and can be found in Tab. T.15. For λ, 
+#* choose a long memory.
+#*******************************************************************************
+path <- file.path("04_Datasets", "soft-drinks.dat")
+df <- read.table(path, header = TRUE)
+head(df)
+
+n <- ncol(df); n
+# mean and standard deviation
+df$mean <- apply(df[, 1:n], 1, mean)
+df$sd <- apply(df[, 1:n], 1, sd)
+str(df)
+
+# mean of standard deviations
+s.bar <- mean(df$sd)
+
+# process standard deviation
+c4 <- 0.9213
+sigma.hat <- s.bar / c4; sigma.hat
+
+# target value
+mu0 <- 16
+
+# smoothing parameter
+lambda <- 0.1
+
+# recursion
+y <- NULL
+y[1] <- mu0
+m <- nrow(df)
+
+for(i in 1:m) {
+  y[i+1] <- (1 - lambda) * y[i] + lambda * df$mean[i]
+}
+y
+
+# Calculating the control limits
+sigma.pro <- sigma.hat / sqrt(n) *
+              sqrt(lambda / (2-lambda) * (1 - (1-lambda)^(2*(0:m))))
+
+UCL <- mu0 + 3*sigma.pro; UCL
+LCL <- mu0 - 3*sigma.pro; LCL
+
+# EWMA Chart
+plot(0:m, y, pch = 20, ylim = c(15.9, 16.1), 
+     xlab = "Index", ylab = "EWMA", main = "EWMA")
+lines(0:m, y)
+
+# add control limits
+abline(h = mu0)
+lines(0:m, UCL, lty = 2, type = "S")
+lines(0:m, LCL, lty = 2, type = "S")
+text(rep(m, 2), c(LCL[m], UCL[m]), label = c("LCL", "UCL"), pos = 1)
+#   NOTE: Process is out of control from sample i = 10 on!
