@@ -12,6 +12,8 @@
 #*  Chapter 4
 #*  CUSUMS
 #*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#*
+#* Plotting the CUSUM-chart of a measurement with 1 sample 
 
 plotting_CUSUM_chart_of_individual_measurement <- function(df) {
   # Process standard deviation using the standard deviation of the data
@@ -51,4 +53,47 @@ plotting_CUSUM_chart_of_individual_measurement <- function(df) {
   abline(h = c(-1, 0, 1) * H, lty = c(2, 1, 2))
 }
 
-plotting_CUSUM_chart_of_individual_measurement(df)
+
+#* Plotting the CUSUM-chart of measurements with several samples
+plotting_CUSUM_of_random_samples <- function(df, mu0, c_value) {
+  m <- ncol(df)
+  # means, standard deviations and Ranges
+  df$mean <- apply(df[, 1:m], 1, mean)
+  df$s <- apply(df[, 1:m], 1, sd)
+  df$R <- apply(df[, 1:m], 1, function(x){ max(x) - min(x)})
+  
+  # mean of standard deviations
+  s.bar <- mean(df$s); s.bar
+  
+  # process standard deviation
+  sigma.hat <- s.bar / c4; sigma.hat
+  
+  # reference value
+  K <- 0.5 * sigma.hat; K
+  
+  # decision interval
+  H <- 5 * sigma.hat; H
+  
+  # C^+ and C^- CUSUMs
+  C.plus <- NULL
+  C.plus[1] <- 0
+  C.minus <- NULL
+  C.minus[1] <- 0
+  
+  n <- nrow(df)
+  for(i in 1:n) {
+    C.plus[i+1] <- max(0, df$mean[i] - (mu0+K) + C.plus[i])
+    C.minus[i+1] <- max(0, (mu0-K) - df$mean[i] + C.minus[i])
+  }
+  C.plus
+  C.minus
+  
+  # CUSUM Chart
+  plot(0:n, C.plus, col = "black", pch = 20, ylim = c(-1.5, 1.5),
+       xlab = "Index", ylab = "Cumulative Sums", main = "CUSUM of Random Samples")
+  lines(0:n, C.plus, col = "black")
+  points(0:n, -C.minus, col = "gray")
+  lines(0:n, -C.minus, col = "gray")
+  abline(h = c(-1, 0, 1) * H, lty = c(2, 1, 2))
+  text(rep(2, 3), c(-1, 1) * H, label = c("Lower CUSUM", "Upper CUSUM"), pos = 3)
+}
