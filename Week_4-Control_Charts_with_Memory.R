@@ -335,6 +335,9 @@ curve(func.drift(x), add=TRUE, col="red")
 #* c4 depends only on the sample size n and can be found in Tab. T.15. For λ, 
 #* choose a long memory.
 #*******************************************************************************
+#* removing all variables in the environment
+rm(list=ls(all=TRUE))
+
 path <- file.path("04_Datasets", "soft-drinks.dat")
 df <- read.table(path, header = TRUE)
 head(df)
@@ -386,3 +389,87 @@ lines(0:m, UCL, lty = 2, type = "S")
 lines(0:m, LCL, lty = 2, type = "S")
 text(rep(m, 2), c(LCL[m], UCL[m]), label = c("LCL", "UCL"), pos = 1)
 #   NOTE: Process is out of control from sample i = 10 on!
+
+
+#*******************************************************************************
+#* Problem 4.3.5 (Monitor Simulated Process with EWMA)
+#* Simulate k = 50 random samples of size n = 8 each from a normal distribution 
+#* with target value µ0 = 10.0 and standard deviation σ = 2.0. Use the command 
+#* rnorm. Create a data set consisting of k rows and n columns with data.frame.
+#*******************************************************************************
+#* a. Create an EWMA chart of the simulated data. You can estimate the 
+#*    process standard deviation from the simulated data.
+#* b. Now add a synthetic process drift of ∆µ = 1.4 from sample i = 21 to the 
+#*    data and look at the resulting EWMA chart. 
+#*    Use data.mod <- rbind(data[1:20,1:n], data[21:50,1:n]+1.4) to modify the
+#*    simulated data.
+#* c. Play with the parameters of your simulation, that is, vary the length 
+#*    of the memory λ and ∆µ.
+#* d. Compare with the CUSUM simulation in Prob. 4.3.3.
+#* -----------------------------------------------------------------------------
+#* removing all variables in the environment
+rm(list=ls(all=TRUE))
+
+# number of experiments
+k <- 50
+
+# number of samples
+n <- 8
+
+# simulate data and convert it to a data frame
+set.seed(1)
+df.sim <- data.frame(matrix(rnorm(k*n, 10, 2), nrow = k, ncol = n)); df.sim
+
+# mean and standard deviations
+df.sim$mean <- apply(df.sim[,1:n], 1, mean)
+df.sim$sd <- apply(df.sim[,1:n], 1, sd)
+
+#* -----------------------------------------------------------------------------
+#* a. EWMA chart of simulated data
+#* -----------------------------------------------------------------------------
+# mean of standard deviations
+sd.bar <- mean(df.sim$sd)
+
+# process standard deviation
+c4 <- 0.9650     #   from table for n=8
+sigma.hat <- sd.bar / c4; sigma.hat
+
+# target value
+mu0 <- 10
+
+# smoothing parameter
+lambda <- 0.3
+
+#   recursion
+y <- NULL
+y[1] <- mu0
+for(i in 1:k) {
+  y[i+1] <- (1-lambda) * y[i] + lambda * df.sim$mean[i]
+}
+y
+for(i in 1:k) {
+  y[i+1] <- (1 - lambda) * y[i] + lambda * df.sim$mean[i]
+}
+y
+#   control limits
+sigma.pro <- sigma.hat/sqrt(n) * sqrt(lambda/(2-lambda) * (1-(1-lambda)^(2*(0:k))))
+UCL <- mu0 + 3*sigma.pro;  UCL
+LCL <- mu0 - 3*sigma.pro;  LCL
+
+#   EWMA chart
+plot(0:k, y, pch=20, ylim=c(-1,1)*10+mu0, xlab="Index", ylab="EWMA", main="EWMA with mean values (blue) and data (black)", col=2)
+lines(0:k, y, col=2)
+#   add mean values
+points(1:k, df.sim$mean, col=4, pch=20)
+#   add control limits
+abline(h=mu0)
+lines(0:k, UCL, lty=2, type="S")
+lines(0:k, LCL, lty=2, type="S")
+text(rep(k,2), c(LCL[21],UCL[21]), label=c("LCL", "UCL"), pos=1)
+#   add data
+for(i in 1:n){ points(1:k, data[,i]) }
+
+#   REMARK: The process is under control.
+
+source("Functions-summary-AppStat.R")
+plotting_EWMA_charts_of_random_samples(df.sim, 10, 0.9650, 0.3)
