@@ -122,30 +122,29 @@ plotting_EWMA_charts_of_random_samples <- function(df, mu0, c_value, lambda) {
   # recursion
   y <- NULL
   y[1] <- mu0
-  m <- nrow(df)
+  k <- nrow(df)
   
-  for(i in 1:m) {
+  for(i in 1:k) {
     y[i+1] <- (1 - lambda) * y[i] + lambda * df$mean[i]
   }
-  y
   
   # Calculating the control limits
   sigma.pro <- sigma.hat / sqrt(n) *
-    sqrt(lambda / (2-lambda) * (1 - (1-lambda)^(2*(0:m))))
+    sqrt(lambda / (2-lambda) * (1 - (1-lambda)^(2*(0:k))))
   
   UCL <- mu0 + 3*sigma.pro; UCL
   LCL <- mu0 - 3*sigma.pro; LCL
   
   # EWMA Chart
-  plot(0:m, y, pch = 20, ylim = c(0.999, 1.001) * c(min(y), max(y)),
+  plot(0:k, y, pch = 20, ylim = c(0.999, 1.001) * c(min(y), max(y)),
        xlab = "Index", ylab = "EWMA", main = "EWMA")
-  lines(0:m, y)
+  lines(0:k, y)
   
   # add control limits
   abline(h = mu0)
-  lines(0:m, UCL, lty = 2, type = "S")
-  lines(0:m, LCL, lty = 2, type = "S")
-  text(rep(m, 2), c(LCL[m], UCL[m]), label = c("LCL", "UCL"), pos = 1)
+  lines(0:k, UCL, lty = 2, type = "S")
+  lines(0:k, LCL, lty = 2, type = "S")
+  text(rep(k, 2), c(LCL[k], UCL[k]), label = c("LCL", "UCL"), pos = 1)
 }
 
 
