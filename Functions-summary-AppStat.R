@@ -12,8 +12,10 @@
 #*  Chapter 4
 #*  CUSUMS
 #*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#*
+
+#*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 #* Plotting the CUSUM-chart of a measurement with 1 sample 
+#*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 plotting_CUSUM_chart_of_individual_measurement <- function(df) {
   # Process standard deviation using the standard deviation of the data
@@ -53,8 +55,10 @@ plotting_CUSUM_chart_of_individual_measurement <- function(df) {
   abline(h = c(-1, 0, 1) * H, lty = c(2, 1, 2))
 }
 
-
+#*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 #* Plotting the CUSUM-chart of measurements with several samples
+#*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 plotting_CUSUM_of_random_samples <- function(df, mu0, c_value) {
   m <- ncol(df)
   # means, standard deviations and Ranges
@@ -97,3 +101,54 @@ plotting_CUSUM_of_random_samples <- function(df, mu0, c_value) {
   abline(h = c(-1, 0, 1) * H, lty = c(2, 1, 2))
   text(rep(2, 3), c(-1, 1) * H, label = c("Lower CUSUM", "Upper CUSUM"), pos = 3)
 }
+
+#*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+# Plotting EWMA-Charts of Random samples
+#*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+plotting_EWMA_charts_of_random_samples <- function(df, mu0, c_value, lambda) {
+  # number of columns
+  n <- ncol(df)
+  # mean and standard deviation
+  df$mean <- apply(df[, 1:n], 1, mean)
+  df$sd <- apply(df[, 1:n], 1, sd)
+  
+  # mean of standard deviations
+  s.bar <- mean(df$sd)
+  
+  # process standard deviation
+  sigma.hat <- s.bar / c4; sigma.hat
+  
+  # recursion
+  y <- NULL
+  y[1] <- mu0
+  m <- nrow(df)
+  
+  for(i in 1:m) {
+    y[i+1] <- (1 - lambda) * y[i] + lambda * df$mean[i]
+  }
+  y
+  
+  # Calculating the control limits
+  sigma.pro <- sigma.hat / sqrt(n) *
+    sqrt(lambda / (2-lambda) * (1 - (1-lambda)^(2*(0:m))))
+  
+  UCL <- mu0 + 3*sigma.pro; UCL
+  LCL <- mu0 - 3*sigma.pro; LCL
+  
+  # EWMA Chart
+  plot(0:m, y, pch = 20, ylim = c(0.999, 1.001) * c(min(y), max(y)),
+       xlab = "Index", ylab = "EWMA", main = "EWMA")
+  lines(0:m, y)
+  
+  # add control limits
+  abline(h = mu0)
+  lines(0:m, UCL, lty = 2, type = "S")
+  lines(0:m, LCL, lty = 2, type = "S")
+  text(rep(m, 2), c(LCL[m], UCL[m]), label = c("LCL", "UCL"), pos = 1)
+}
+
+
+#*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+#* xy 
+#*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
