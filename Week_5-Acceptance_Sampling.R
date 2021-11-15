@@ -15,3 +15,38 @@ rm(list=ls(all=TRUE))
 #* b. a maximum of three winning lots.
 #* c. more than one winning lot. 
 #*------------------------------------------------------------------------------
+
+#*------------------------------------------------------------------------------
+#* a. exactly two winning lots.
+#*------------------------------------------------------------------------------
+p <- 4/10         # percent defective
+N <- 10           # lot size
+n <- 5            # sample size
+c <- 2            # acceptance number
+
+dhyper(x = c, m = p*N, n = (1-p)*N, k = n)
+
+#*------------------------------------------------------------------------------
+#* b. a maximum of three winning lots.
+#*------------------------------------------------------------------------------
+p <- 4/10         # percent defective
+N <- 10           # lot size
+n <- 5            # sample size
+c <- 3            # acceptance number
+
+phyper(q = c, m = p*N, n = (1-p)*N, k = n)
+
+#*------------------------------------------------------------------------------
+#* c. more than one winning lot. 
+#*------------------------------------------------------------------------------
+p <- 4/10         # percent defective
+N <- 10           # lot size
+n <- 5            # sample size
+c <- 1            # acceptance number
+
+phyper(q = c, m = p*N, n = (1-p)*N, k = n, lower.tail = FALSE)
+
+
+source("Functions-summary-AppStat.R")
+operating_characteristic_function()
+
