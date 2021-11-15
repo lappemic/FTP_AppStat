@@ -153,6 +153,19 @@ plotting_EWMA_charts_of_random_samples <- function(df, mu0, c_value, lambda) {
 #*  Acceptance Sampling
 #*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+#* Operating characteristic function
+#*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+operating_characteristic_function <- function(p, N, n, c) {
+  #' Function to estimate the operating function
+  #' p: Percent defective
+  #' N: Lot sizen
+  #' n: Sample size
+  #' c: Acceptance number
+  phyper(q = c, m = p*N, n = (1-p) * N, k = n)
+}
+
 
 #*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 #* xy 
