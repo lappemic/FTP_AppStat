@@ -453,10 +453,7 @@ for(i in 1:k) {
   y[i+1] <- (1-lambda) * y[i] + lambda * df.sim$mean[i]
 }
 y
-for(i in 1:k) {
-  y[i+1] <- (1 - lambda) * y[i] + lambda * df.sim$mean[i]
-}
-y
+
 #   control limits
 sigma.pro <- sigma.hat/sqrt(n) * sqrt(lambda/(2-lambda) * (1-(1-lambda)^(2*(0:k))))
 UCL <- mu0 + 3*sigma.pro;  UCL
@@ -477,4 +474,60 @@ for(i in 1:n){ points(1:k, df.sim[,i]) }
 
 #   REMARK: The process is under control.
 
+#* -----------------------------------------------------------------------------
+#* b. Added synthetic process drift and look at the resulting EWMA chart. 
+#* -----------------------------------------------------------------------------
+# delata of mu0
+delta.mu <- 1.4
 
+#*    Use data.mod <- rbind(data[1:20,1:n], data[21:50,1:n]+1.4) to modify the
+#*    simulated data.
+df.mod <- rbind(df.sim[1:20, 1:n], df.sim[21:50, 1:n] + delta.mu); df.mod
+
+# means and standard deviations
+df.mod$mean <- apply(df.mod[, 1:n], 1, mean)
+df.mod$sd <- apply(df.mod[, 1:n], 1, sd)
+str(df.mod)
+
+# mean of standard deviations
+s.bar.mod <- mean(df.mod$sd)
+
+# process standard deviation
+c4 <- 0.9650     #   from table for n=8
+sigma.hat.mod <- sd.bar / c4; sigma.hat
+
+# target value
+mu0 <- 10
+
+# smoothing parameter
+lambda <- 0.3
+
+#   recursion
+y.mod <- NULL
+y.mod[1] <- mu0
+for(i in 1:k) {
+  y.mod[i+1] <- (1-lambda) * y.mod[i] + lambda * df.mod$mean[i]
+}
+y
+
+#   control limits
+sigma.pro.mod <- sigma.hat.mod/sqrt(n) * sqrt(lambda/(2-lambda) * (1-(1-lambda)^(2*(0:k))))
+UCL.mod <- mu0 + 3*sigma.pro.mod;  UCL
+LCL.mod <- mu0 - 3*sigma.pro.mod;  LCL
+
+#   EWMA chart
+plot(0:k, y.mod, pch=20, ylim=c(-1.2,1.2)*10+mu0, 
+     xlab="Index", ylab="EWMA", 
+     main="EWMA with mean values (blue) and data (black)", col=2)
+lines(0:k, y.mod, col=2)
+#   add mean values
+points(1:k, df.mod$mean, col=4, pch=20)
+#   add control limits
+abline(h=mu0)
+lines(0:k, UCL.mod, lty=2, type="S")
+lines(0:k, LCL.mod, lty=2, type="S")
+text(rep(k,2), c(LCL[21],UCL[21]), label=c("LCL", "UCL"), pos=1)
+#   add data
+for(i in 1:n){ points(1:k, df.mod[,i]) }
+
+#   REMARK: The process is no longer under control.
