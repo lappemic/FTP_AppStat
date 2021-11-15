@@ -117,7 +117,7 @@ plotting_EWMA_charts_of_random_samples <- function(df, mu0, c_value, lambda) {
   s.bar <- mean(df$sd)
   
   # process standard deviation
-  sigma.hat <- s.bar / c4; sigma.hat
+  sigma.hat <- s.bar / c_value; sigma.hat
   
   # recursion
   y <- NULL
