@@ -427,6 +427,12 @@ df.sim$sd <- apply(df.sim[,1:n], 1, sd)
 #* -----------------------------------------------------------------------------
 #* a. EWMA chart of simulated data
 #* -----------------------------------------------------------------------------
+#* The defined function gives different values. I could not find out
+#* where the error is...
+source("Functions-summary-AppStat.R")
+plotting_EWMA_charts_of_random_samples(df.sim, 10, 0.9650, 0.3)
+#* -----------------------------------------------------------------------------
+# Code from the solution:
 # mean of standard deviations
 sd.bar <- mean(df.sim$sd)
 
@@ -467,9 +473,8 @@ lines(0:k, UCL, lty=2, type="S")
 lines(0:k, LCL, lty=2, type="S")
 text(rep(k,2), c(LCL[21],UCL[21]), label=c("LCL", "UCL"), pos=1)
 #   add data
-for(i in 1:n){ points(1:k, data[,i]) }
+for(i in 1:n){ points(1:k, df.sim[,i]) }
 
 #   REMARK: The process is under control.
 
-source("Functions-summary-AppStat.R")
-plotting_EWMA_charts_of_random_samples(df.sim, 10, 0.9650, 0.3)
+
