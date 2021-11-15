@@ -157,7 +157,7 @@ plotting_EWMA_charts_of_random_samples <- function(df, mu0, c_value, lambda) {
 #* Operating characteristic function
 #*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-operating_characteristic_function <- function(p, N, n, c) {
+OC_function <- function(p, N, n, c) {
   #' Function to estimate the operating function
   #' p: Percent defective
   #' N: Lot sizen
