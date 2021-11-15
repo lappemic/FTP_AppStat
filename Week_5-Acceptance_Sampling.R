@@ -74,6 +74,91 @@ phyper(q = c, m = p*N, n = (1-p)*N, k = n, lower.tail = FALSE)
 #* P(X = x) =   (m+n)
 #*              ( k )
 
+
+#*******************************************************************************
+#* Problem 5.3.3 (Acceptance Sampling Plan)
+#* In acceptance sampling lots with N = 11 000 bolts are tested. Lots with less 
+#* than 1% of bad bolts are rejected in 10% of all cases, though they would have
+#* to be accepted as ﬁt for use. On the other hand, lots with more than 5% of
+#* bad bolts are accepted at most in 5% of all cases, though their quality does
+#* not meet the terms of delivery.
+#*******************************************************************************
+#* a. What is the producer risk α and the consumer risk β ?
+#* b. What is the probability of acceptance p α and a probability of 
+#*    rejection p β ?
+#* c. Find the parameters of the acceptance sampling plan, i.e. the sample size
+#*    n and the acceptance number c.
+#*------------------------------------------------------------------------------
+
+N <- 11000
+
+#*------------------------------------------------------------------------------
+#* a. Producer and consumer risk
+#*------------------------------------------------------------------------------
+# Producer risk
+alpha <- 0.1
+# Consumer risk
+beta <- 0.05
+
+
+#*------------------------------------------------------------------------------
+#* b. What is the probability of acceptance p α and a probability of 
+#*    rejection p β ?
+#*------------------------------------------------------------------------------
+# probability of acceptance
+p.alpha <- 0.01
+# probability of rejection
+p.beta <- 0.05
+
+#*------------------------------------------------------------------------------
+#* c. Find the parameters of the acceptance sampling plan, i.e. the sample size
+#*    n and the acceptance number c.
+#*------------------------------------------------------------------------------
+#* brute-force solution: calculate all useful combinations
 source("Functions-summary-AppStat.R")
-operating_characteristic_function()
+n.good <- NULL
+c.good <- NULL
+for(ni in 1:(N/10)) {   # do not try all
+  for(ci in 1:(ni-1)) {
+    a.flag <- OC_function(p=p.alpha,N,n=ni,c=ci) >= 1-alpha
+    b.flag <- OC_function(p=p.beta, N,n=ni,c=ci) <= beta
+    if(a.flag & b.flag){
+      n.good <- c(n.good, ni)
+      c.good <- c(c.good, ci)
+    }
+  }
+}
+
+#   parameters of all possible acceptance sampling plans
+plot(n.good, c.good, pch=20, cex=0.1, main="Parameter n and c of all Plans")
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+# optimal acceptance sampling plan with the smallest possible sample size
+
+# choose smallest sample size
+n <- n.good[1]; n
+
+#   choose acceptance number
+c <- c.good[1]; c
+
+#   graphics
+curve(OC_function(p=x,N,n=n,c=c), from=0, to=0.1, n=10001, 
+      xlab="p", ylab="OC, Acceptance Probability", 
+      main="Operating Characteristic")
+abline(h=0, v=0)
+lines(c(0,p.alpha,p.alpha), c(1-alpha,1-alpha,0), lty=2)
+lines(c(0,p.beta,p.beta), c(beta,beta,0), lty=2)
+points(c(p.alpha, p.beta), c(1-alpha,beta), pch=20, cex=2)
+#   add legend
+text(c(0,0,p.alpha+0.002,p.beta-0.002), c(1-alpha+0.02,beta+0.02,0,0),
+     pos=c(4,4,3,3), labels=c(expression(1-alpha),
+                              expression(beta),
+                              expression(p[alpha]),
+                              expression(p[beta])))
+
+#   real producer risk, smaller than alpha=0.1
+1-OC_function(p=p.alpha,N,n=n,c=c)
+
+#   real consumer risk, smaller than beta=0.05
+OC_function(p=p.beta,N,n=n,c=c)
 
