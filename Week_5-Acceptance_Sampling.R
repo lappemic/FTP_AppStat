@@ -286,3 +286,53 @@ summary(qcc.s)
 #* c. The trial run consists of the 25 measurements. Is the new 
 #*    sample 63.997, 63.991 and 64.004 under control?
 #*------------------------------------------------------------------------------
+#* Load dataset
+path <- file.path("04_Datasets", "fuse-pins.dat")
+df <- read.table(path, header = TRUE)
+head(df)
+str(df)
+df
+
+mu0 <- 64
+
+#*------------------------------------------------------------------------------
+#* a. Create a CUSUM chart.
+#*------------------------------------------------------------------------------
+df.g <- qcc.groups(df$diam, df$ sample)
+head(df.g)
+?`qcc-package`
+
+qcc.cusum <- cusum(df.g, type = "xbar", target = mu0, plot = FALSE)
+summary(qcc.cusum)
+
+plot(qcc.cusum, nsigmas = 3)
+#   NOTE: The process is under control
+
+
+#*------------------------------------------------------------------------------
+#* b. Create a EWMA chart with λ = 0.3.
+#*------------------------------------------------------------------------------
+lambda <- 0.3
+qcc.ewma <- ewma(df.g, type = "xbar", target = mu0, plot = FALSE)
+summary(qcc.ewma)
+
+plot(qcc.ewma, lambda = lambda, nsigmas = 3)
+#   NOTE: Process is under control
+
+
+#*------------------------------------------------------------------------------
+#* c. The trial run consists of the 25 measurements. Is the new 
+#*    sample 63.997, 63.991 and 64.004 under control?
+#*------------------------------------------------------------------------------
+new.sample <- matrix(c(63.997, 63.991, 64.004), ncol = 3); new.sample
+
+# estimate CUSUM and EWMA
+qcc.cusum.new <- cusum(df.g, type = "xbar", target = mu0, 
+                       newdata = new.sample, plot = FALSE)
+qcc.ewma.new <- ewma(df.g, type = "xbar", target = mu0, 
+                     newdata = new.sample, plot = FALSE)
+
+# plot the charts
+plot(qcc.cusum.new, nsigmas = 3)
+plot(qcc.ewma.new, lambda = lambda, nsigmas = 3)
+#   NOTE: The new sample is ok.
