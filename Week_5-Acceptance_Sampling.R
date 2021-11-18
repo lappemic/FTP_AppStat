@@ -162,3 +162,127 @@ text(c(0,0,p.alpha+0.002,p.beta-0.002), c(1-alpha+0.02,beta+0.02,0,0),
 #   real consumer risk, smaller than beta=0.05
 OC_function(p=p.beta,N,n=n,c=c)
 
+
+#*******************************************************************************
+#* Problem 6.2.2 (Shewhart Control Charts with qcc)
+#* A quality inspector in a beverage factory is responsible for the accuracy of
+#* the ﬁlling machine of a soft drink. She has collected 25 samples consisting 
+#* of four measurements of ﬁll level [in cm], cf. data set soft-drinks.dat. Use 
+#* the ﬁrst 20 measured values as a trial run to make the following charts and 
+#* check if subsequent measurements are under control.
+#*******************************************************************************
+#* a. Chart for x.bar
+#* b. Chart for R
+#* c. Chart for s
+#* d. Compare to the charts in Prob. 2.5.2.
+#*------------------------------------------------------------------------------
+#* Installing and loading qcc package
+# install.packages("qcc")
+require(qcc)
+
+# loading dataset
+path <- file.path("04_Datasets", "soft-drinks.dat")
+df <- read.table(path, header = TRUE)
+head(df)
+
+#*------------------------------------------------------------------------------
+#* a. Chart for x.bar
+#*------------------------------------------------------------------------------
+?qcc
+qcc.xbar <- qcc(df[1:20,], type = "xbar", newdata = df[21:25,], nsigmas = 3)
+summary(qcc.xbar)
+#   NOTE: The trial run is not under control. Datapoint 12 should be deleted
+
+# taking out datapoint 12
+ind <- c(1:11, 13:20); ind
+qcc.xbar.mod <- qcc(df[ind,], type = "xbar", newdata = df[21:25,], nsigmas = 3)
+summary(qcc.xbar.mod)
+#   NOTE: Now the whole process is under control
+
+#*------------------------------------------------------------------------------
+#* b. Chart for R
+#*------------------------------------------------------------------------------
+qcc.R <- qcc(df[1:20,], type = "R", newdata = df[21:25,], nsigmas = 3)
+summary(qcc.R)
+#   NOTE: Same as above can be observed: DP 12 causes problems
+
+qcc.R.mod <- qcc(df[ind,], type = "R", newdata = df[21:25,], nsigmas = 3)
+summary(qcc.R.mod)
+#   NOTE: The process is under control now
+
+#*------------------------------------------------------------------------------
+#* c. Chart for s
+#*------------------------------------------------------------------------------
+qcc.s <- qcc(df[1:20,], type = "S", newdata = df[21:25,], nsigmas = 3)
+summary(qcc.s)
+#   NOTE: Same issue -> remove index 12
+
+qcc.s.mod <- qcc(df[ind, ], type = "S", newdata = df[21:25,], nsigmas = 3)
+summary(qcc.s.mod)
+#   NOTE: Process is under control
+#*------------------------------------------------------------------------------
+#* d. Compare to the charts in Prob. 2.5.2.
+#*------------------------------------------------------------------------------
+#* The same results occured
+
+
+#*******************************************************************************
+#* Problem 6.2.3 (Group Data, Shewhart Control Chart with qcc, Ex. 15-91)
+#* The diameter of fuse pins used in an aircraft engine application is an 
+#* important quality characteristic. Twenty-ﬁve samples of three pins each were 
+#* measured, cf. the data set fuse-pins.dat. The target value is µ 0 = 64.000 mm.
+#*******************************************************************************
+#* a. Display the data graphically, i.e. measurements, resp. means of
+#*    measurements versus sample index.
+#* b. Group the data so that it can be further processed with R and the 
+#*    package qcc.
+#* c. Create charts for x.bar and s.
+#*------------------------------------------------------------------------------
+#* load data
+path <- file.path("04_Datasets", "fuse-pins.dat")
+df <- read.table(path, header = TRUE)
+head(df)
+str(df)
+df
+
+mu0 <- 64
+#*------------------------------------------------------------------------------
+#* a. Display the data graphically, i.e. measurements, resp. means of
+#*    measurements versus sample index.
+#*------------------------------------------------------------------------------
+plot(df$sample, df$diam, cex = 0.7)
+lines(tapply(df$diam, df$sample, mean))
+#   NOTE: Data looks ok
+
+#*------------------------------------------------------------------------------
+#* b. Group the data so that it can be further processed with R and the 
+#*    package qcc.
+#*------------------------------------------------------------------------------
+df.grouped <- qcc.groups(df$diam, df$sample)
+str(df.grouped)
+head(df.grouped)
+#*------------------------------------------------------------------------------
+#* c. Create charts for x.bar and s.
+#*------------------------------------------------------------------------------
+# x.bar chart
+qcc.xbar <- qcc(df.grouped, type = "xbar", target = mu0, nsigmas = 3)
+summary(qcc.xbar)
+#   NOTE: Process seems under control
+
+# s chart
+qcc.s <- qcc(df.grouped, type = "S", target = mu0, nsigmas = 3)
+summary(qcc.s)
+#   NOTE: The process is under control
+
+
+#*******************************************************************************
+#* Problem 6.2.4 (CUSUM and EWMA with qcc, Ex. 15-91) 
+#* The diameter of fuse pins used in an aircraft engine application is an 
+#* important quality characteristic. Twentyﬁve samples of three pins each were 
+#* measured, cf. the data set fuse-pins.dat. The target value is µ 0 = 64.000 mm.
+#*******************************************************************************
+#* a. Create a CUSUM chart.
+#* b. Create a EWMA chart with λ = 0.3.
+#* c. The trial run consists of the 25 measurements. Is the new 
+#*    sample 63.997, 63.991 and 64.004 under control?
+#*------------------------------------------------------------------------------
