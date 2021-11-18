@@ -336,3 +336,60 @@ qcc.ewma.new <- ewma(df.g, type = "xbar", target = mu0,
 plot(qcc.cusum.new, nsigmas = 3)
 plot(qcc.ewma.new, lambda = lambda, nsigmas = 3)
 #   NOTE: The new sample is ok.
+
+
+#*******************************************************************************
+#* Problem 6.2.5 (OC with qcc)
+#* A quality inspector in a beverage factory is responsible for the accuracy of 
+#* the ﬁlling machine of a soft drink. She has collected 25 samples consisting 
+#* of four measurements of ﬁll level [in cm], cf. data set soft-drinks.dat. 
+#* Create operating characteristic curves for diﬀerent sample sizes n from 
+#* the stable trial run.
+#*******************************************************************************
+#* Load the data
+path <- file.path("04_Datasets", "soft-drinks.dat")
+df <- read.table(path, header = TRUE)
+head(df)
+str(df) 
+
+# As we now from previous exercises the trial run is not under control and
+# we have to exclude data point 12
+ind <- c(1:11, 13:25)
+?'qcc-package'
+qcc.oc <- qcc(df[ind, ], type = "xbar", plot = FALSE)
+oc.curves(qcc.oc)
+
+
+#*******************************************************************************
+#* Problem 6.2.6 (PCR with qcc)
+#* A quality inspector in a beverage factory is responsible for the accuracy of 
+#* the ﬁlling machine of a soft drink. She has collected 25 samples consisting
+#* of four measurements of ﬁll level [in cm], cf. data set soft-drinks.dat. 
+#* Estimate the process capability index C_P from the stable trial run for 
+#* tolerance limits USL = 18.1 cm and LSL = 15.6 cm. Study the graphics and try 
+#* to understand the R output. The information in help(process.capability) 
+#* might help.
+#*******************************************************************************
+#* Load the data
+path <- file.path("04_Datasets", "soft-drinks.dat")
+df <- read.table(path, header = TRUE)
+
+?process.capability()
+
+# as before we have to exclude datapoint 12
+ind <- c(1:11, 13:25)
+qcc.PC <- qcc(df[ind,], type = "xbar", nsigmas = 3, plot = FALSE)
+
+# Specification limits
+USL <- 18.1
+LSL <- 15.6
+process.capability(qcc.PC, spec.limits = c(LSL, USL))
+
+#* If we assume that the process is under control, 
+#* i.e. if µ 1 = µ 0 and SL = µ 0 , then
+#* 
+#* • C p = 1 implies a reject rate of α · 100% = 0.27%.
+#* • C p < 1 implies a reject rate of more than α · 100% = 0.27%, 
+#*    i.e. the process capability is not guaranteed.
+#* • C p > 1 implies a reject rate of less than α · 100% = 0.27%, 
+#*    i.e. the process capability is guaranteed.
