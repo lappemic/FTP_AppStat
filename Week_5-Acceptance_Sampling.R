@@ -388,8 +388,39 @@ process.capability(qcc.PC, spec.limits = c(LSL, USL))
 #* If we assume that the process is under control, 
 #* i.e. if µ 1 = µ 0 and SL = µ 0 , then
 #* 
-#* • C p = 1 implies a reject rate of α · 100% = 0.27%.
-#* • C p < 1 implies a reject rate of more than α · 100% = 0.27%, 
+#* • C_p = 1 implies a reject rate of α · 100% = 0.27%.
+#* • C_p < 1 implies a reject rate of more than α · 100% = 0.27%, 
 #*    i.e. the process capability is not guaranteed.
-#* • C p > 1 implies a reject rate of less than α · 100% = 0.27%, 
+#* • C_p > 1 implies a reject rate of less than α · 100% = 0.27%, 
 #*    i.e. the process capability is guaranteed.
+#*    
+#*    C_p is > 1so the process capability is guaranteed with a reject
+#*      rate less than 0.27%
+
+
+#*******************************************************************************
+#* Problem 6.4.2 (Sampling Plan with AcceptanceSampling, Beispiel 22-2)
+#* In acceptance sampling lots with N = 11 000 bolts are tested. Lots with less 
+#* than 1% of bad bolts are rejected in 10% of all cases, though they would 
+#* have to be accepted as ﬁt for use. On the other hand, lots with more than 5% 
+#* of bad bolts are accepted at most in 5% of all cases, though their quality 
+#* does not meet the terms of delivery. Find the parameters of the acceptance 
+#* sampling plan, i.e. the sample size n and the acceptance number c.
+#*******************************************************************************
+# install.packages("AcceptanceSampling")
+require(AcceptanceSampling)
+
+#   The producer risk point
+#       producer risk
+alpha <- 0.1
+#       probability of acceptance
+p.alpha <- 0.01
+
+#   The consumer risk point
+#       consumer risk
+beta <- 0.05
+#       probability of rejection
+p.beta <- 0.05
+
+#   Utility function for finding sampling plans
+find.plan(PRP=c(p.alpha, 1-alpha), CRP=c(p.beta, beta), type="hypergeom", N=11000)
