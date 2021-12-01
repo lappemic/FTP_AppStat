@@ -30,3 +30,11 @@ str(df)
 #*------------------------------------------------------------------------------
 plot(df$Year, df$SeaLevel, main = "Sea Level vs. Year")
 grid()
+
+#   NOTE: There seems to me a slight relationship between year and sea level.
+#         The sea level raises over the year.
+
+#*------------------------------------------------------------------------------
+#* b. Fit a straight line to the data points. Give the estimated parameter values.
+#*------------------------------------------------------------------------------
+abline()
