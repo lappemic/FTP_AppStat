@@ -270,3 +270,25 @@ WV.pred <- predict(mod.inv, newdata=WV.new2, interval="prediction", level=0.95);
 #*            interval of the measured wind velocities.
 #*            In Prob. 7.5.2.d we calculated the minimal wind velocity necessary
 #*            to produce a DC output which was considerably bigger than 1 m/s.
+
+#*******************************************************************************
+#*  Problem 7.5.3 (Atmospheric Pressure versus Boiling Point of Water, Chap. 1.1)
+#*  In 1857 the Scottish physicist James D. Forbes discussed an experiment 
+#*  concerning the relationship between atmospheric pressure and the boiling 
+#*  point of water. At the time it was known that altitude could be determined 
+#*  from atmospheric pressure. In the middle of the nineteenth century, 
+#*  barometers were fragile instruments, and Forbes had the idea to replace 
+#*  barometers by a simpler measurement of the boiling point of water.
+#*  He measured in the Alps and in Scotland at each location the pressure 
+#*  [in inHg] with a barometer and the boiling point [in ◦ F] using a thermometer. 
+#*  The data set forbes.dat contains the pressure and the boiling point.
+#*******************************************************************************
+#* a. Plot the boiling point versus the logarithm (base 10) of the pressure. 
+#*    What are your observations?
+#* b. Fit and plot a straight line to the transformed data points. Give the 
+#*    estimated parameter values. What are your observations?
+#* c. Fit and plot a straight line to the transformed data points without the 
+#*    12th observation. Use the argument subset in lm. Compare the estimated 
+#*    parameter values, the standard errors and the residual standard error with
+#*    the ﬁt of the full data. What are your observations?
+#*------------------------------------------------------------------------------
