@@ -291,4 +291,110 @@ WV.pred <- predict(mod.inv, newdata=WV.new2, interval="prediction", level=0.95);
 #*    12th observation. Use the argument subset in lm. Compare the estimated 
 #*    parameter values, the standard errors and the residual standard error with
 #*    the ﬁt of the full data. What are your observations?
+#*    
+#*    Solve the next questions without the 12th observation.
+#* d. Test the slope for signiﬁcance of regression on the 5% level.
+#* e. Calculate the 95% conﬁdence level for the slope.
+#* f. Find an estimation of the boiling point at the pressure 26 inHg using the
+#*    model ﬁt to the transformed data. Calculate the 95% conﬁdence interval of
+#*    the response of this estimator and add the complete conﬁdence interval 
+#*    band to the scatter diagram.
+#* g. Calculate the 95% prediction interval and add the complete prediction 
+#*    interval band to the scatter diagram.
+#*------------------------------------------------------------------------------
+#* Read data
+path <- file.path("04_Datasets", "forbes.dat")
+df <- read.table(path, header = TRUE)
+head(df)
+str(df)
+
+#*------------------------------------------------------------------------------
+#* a. Plot the boiling point versus the logarithm (base 10) of the pressure. 
+#*    What are your observations?
+#*------------------------------------------------------------------------------
+par(mfrow=c(1,2))
+plot(df$Boiling ~ df$Pressure)
+grid()
+plot(df$Boiling ~ log10(df$Pressure))
+grid()
+
+#   Note: With the log the points lie almost perfectly on a straight line
+
+
+#*------------------------------------------------------------------------------
+#* b. Fit and plot a straight line to the transformed data points. Give the 
+#*    estimated parameter values. What are your observations?
+#*------------------------------------------------------------------------------
+
+model <- lm(Boiling ~ Pressure, data = df)
+model.log <- lm(Boiling ~ log10(Pressure), data = df)
+
+par(mfrow=c(1,2))
+plot(df$Boiling ~ df$Pressure)
+grid()
+abline(model, col = "red")
+plot(df$Boiling ~ log10(df$Pressure))
+grid()
+abline(model.log, col = "red")
+
+coefficients(model)
+coefficients(model.log)
+summary(model.log)
+
+#   NOTE: The model fits almost perfectly. There is just one point which really
+#         deviates from the line.
+
+#*------------------------------------------------------------------------------
+#* c. Fit and plot a straight line to the transformed data points without the 
+#*    12th observation. Use the argument subset in lm. Compare the estimated 
+#*    parameter values, the standard errors and the residual standard error with
+#*    the ﬁt of the full data. What are your observations?
+#*------------------------------------------------------------------------------
+sub <- c(1:11, 13:17)
+model.log.2 <- lm(Boiling ~ log10(Pressure), data = df, subset = sub)
+summary(model.log.2)
+
+par(mfrow=c(1,2))
+plot(df$Boiling ~ log10(df$Pressure), main = "With datapoint 12")
+grid()
+abline(model.log, col = "red")
+plot(df$Boiling ~ log10(df$Pressure), main = "Without datapoint 12")
+grid()
+abline(model.log.2, col = "red")
+
+#   NOTE: The R-squared is even higher now and the straight line seems to 
+#         capture the remaining points better.
+
+
+#*------------------------------------------------------------------------------
+#*    Solve the next questions without the 12th observation.
+#* d. Test the slope for signiﬁcance of regression on the 5% level.
+#*------------------------------------------------------------------------------
+# Null hypothesis H_0: beta_1 = 0
+
+coefficients(summary(model.log.2))
+
+#   NOTE: Since the p-value of log10(Pressure) [beta_1 = slopw] is much smaller
+#         than 5% we can reject the null hypothesis and conclude there is a 
+#         significant linear relationship on the 5% significance level.
+
+
+#*------------------------------------------------------------------------------
+#* e. Calculate the 95% conﬁdence level for the slope.
+#*------------------------------------------------------------------------------
+confint(model.log.2, parm = 2, level = 0.95)
+
+#*------------------------------------------------------------------------------
+#* f. Find an estimation of the boiling point at the pressure 26 inHg using the
+#*    model ﬁt to the transformed data. Calculate the 95% conﬁdence interval of
+#*    the response of this estimator and add the complete conﬁdence interval 
+#*    band to the scatter diagram.
+#*------------------------------------------------------------------------------
+pred <- predict(model.log.2, newdata = data.frame(Pressure = log10(26))); pred
+
+confint(pred, level = 0.95)
+
+#*------------------------------------------------------------------------------
+#* g. Calculate the 95% prediction interval and add the complete prediction 
+#*    interval band to the scatter diagram.
 #*------------------------------------------------------------------------------
