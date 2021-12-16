@@ -434,3 +434,28 @@ legend("topleft", legend=c("best model",
                            "confidence intervals on the response", 
                            "prediction intervals"), 
        lty=c(1,2,3), bty="n")
+
+
+
+#*******************************************************************************
+#* Problem 7.5.4 (Simulation of the Distribution of Regression Parameters) 
+#* We want to simulate the distribution of the regression parameters β_0  and 
+#* β_1 keeping the explanatory variable x constant only varying the measurement
+#* errors ε randomly. Let us choose the simple linear model y = 5+3x and n = 20 
+#* uniformly distributed x-values in the interval from x_min = 0 to x_max = 50. 
+#* The measurement errors ε_1 , . . . , ε_n are supposed to be normally
+#* distributed with mean zero and standard error σ = 5.
+#*******************************************************************************
+#* We use the command set.seed() so that we can always reproduce exactly the 
+#* same simulation.
+#* a. Using a for-loop plot successively 100 data sets with simulated errors. 
+#*    For each simulated data set add the best straight line. Observe the 
+#*    scattering of the points and its corresponding regression line. 
+#* b. For each data set with simulated errors record the estimated parameters 
+#*    β_0 and β_1 in two separate vectors. Plot the two empirical distributions
+#*    of these estimated parameters using histograms with the argument freq=F. 
+#*    For each histogram add the density of the theoretical distribution. 
+#*    Compare the means and the standard deviations of the simulated parameter 
+#*    vectors with the theoretical parameters.
+#* c. Repeat the above with 10000 simulations. What do you observe?
+#*------------------------------------------------------------------------------
