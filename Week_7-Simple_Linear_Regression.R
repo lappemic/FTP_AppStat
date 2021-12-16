@@ -459,3 +459,153 @@ legend("topleft", legend=c("best model",
 #*    vectors with the theoretical parameters.
 #* c. Repeat the above with 10000 simulations. What do you observe?
 #*------------------------------------------------------------------------------
+# An example:
+set.seed(1337)
+x <- runif(n = 20, min = 0, max = 5)
+y <- 5+3*x
+for(i in 1:100){
+  Y <- y * rnorm(n = 20, mean = 0, sd = 5)
+  plot(x, Y, ylim = c(-500, 500),
+       main = "Data Set with simulated Errors")
+  abline(a = 5, b = 3)
+  abline(lm(Y ~ x), col = "red")
+  dev.flush()
+  Sys.sleep(0.2)
+}
+
+
+#*------------------------------------------------------------------------------
+#* a. Using a for-loop plot successively 100 data sets with simulated errors. 
+#*    For each simulated data set add the best straight line. Observe the 
+#*    scattering of the points and its corresponding regression line. 
+#*------------------------------------------------------------------------------
+sigma <- 5
+n <- 20
+set.seed(1337)
+for(i in 1:100){
+  E <- rnorm(n, mean = 0, sd = sigma)
+  Y <- y + E
+  # estimation
+  mod <- lm(Y ~ x)
+  # graphic
+  plot(x, Y, pch = 20, xlim = c(0, 50), ylim = c(0, 160),
+       main = "Data Set with Simulated Errors")
+  abline(v = x, lty = 3, col = "grey")
+  abline(a = 5, b = 3)
+  abline(mod, col = "red")
+  dev.flush()
+  Sys.sleep(0.2)
+}
+
+#   NOTE: The best straight line differs a lot depending on the errors.
+
+#*------------------------------------------------------------------------------
+#* b. For each data set with simulated errors record the estimated parameters 
+#*    β_0 and β_1 in two separate vectors. Plot the two empirical distributions
+#*    of these estimated parameters using histograms with the argument freq=F. 
+#*    For each histogram add the density of the theoretical distribution. 
+#*    Compare the means and the standard deviations of the simulated parameter 
+#*    vectors with the theoretical parameters.
+#*------------------------------------------------------------------------------
+beta0.sim <- NULL
+beta1.sim <- NULL
+set.seed(1337)
+
+for(i in 1:100){
+  E <- rnorm(n, mean = 0, sd = sigma)
+  Y <- y + E
+  # estimation
+  mod <- lm(Y ~ x)
+  beta0.sim[i] <- coefficients(mod)[1]
+  beta1.sim[i] <- coefficients(mod)[2]
+}
+
+# distributions of beta0 and beta1 with theoretical distributions
+op <- par(mfrow = c(1, 2))
+
+# Intercept
+sd0.theory <- sigma*sqrt(1/n+mean(x)^2 / sum((x-mean(x))^2))
+hist(beta0.sim, xlab = "beta0", freq = F, ylim = c(0, 0.2),
+     breaks = seq(-10, 15, by = 1),
+     xlim = range(pretty(beta0.sim)),
+     col = "gray")
+
+abline(v = mean(beta0.sim) + sd(beta0.sim) * c(-1, 0, 1), col = "blue",
+       lwd = 2)
+
+abline(v = beta0 + sd0.theory * c(-1, 0, 1), col = "red")
+
+curve(dnorm(xi, mean = beta0, sd = sd0.theory),
+      xname = "xi", from = range(pretty(beta0.sim))[1],
+      to = range(pretty(beta0.sim))[2], n = 1001,
+      col = "red", add = T)
+
+# slope
+sd1.theory <- sqrt(sigma^2 / sum((x - mean(x))^2))
+hist(beta1.sim, xlab = "beta1", freq = F, ylim = c(0, 6), 
+     breaks = seq(2,4, by = 0.05), xlim = range(pretty(beta1.sim)), col = "gray")
+
+abline(v = mean(beta1.sim) + sd(beta1.sim) * c(-1, 0, 1), col = "blue",
+       lwd = 2)
+
+abline(v = beta1 + sd1.theory * c(-1, 0, 1), col = "red")
+
+curve(dnorm(xi, mean = beta1, sd = sd1.theory), xname = "xi", 
+      from = range(pretty(beta1.sim))[1],
+      to = range(pretty(beta1.sim))[2], 
+      n = 1001, col = "red", add = T)
+
+par(op)
+
+
+#*------------------------------------------------------------------------------
+#* c. Repeat the above with 10000 simulations. What do you observe?
+#*------------------------------------------------------------------------------
+beta0.sim <- NULL
+beta1.sim <- NULL
+set.seed(1337)
+for(i in 1:10000){
+  E <- rnorm(n, mean=0, sd=sigma)
+  Y <- y + E
+  #   estimation
+  mod <- lm(Y ~ x)
+  beta0.sim[i] <- coefficients(mod)[1]
+  beta1.sim[i] <- coefficients(mod)[2]
+}
+
+#   distributions of beta0 and beta1 with theoretical distributions
+op <- par(mfrow=c(1,2))
+#   intercept
+sd0.theory <- sigma*sqrt(1/n+mean(x)^2/sum((x-mean(x))^2))
+hist(beta0.sim, xlab="beta0", freq=F, ylim=c(0,0.2), breaks=seq(-10,15,by=1), 
+     xlim=range(pretty(beta0.sim)), col="gray")
+
+abline(v=mean(beta0.sim)+sd(beta0.sim)*c(-1,0,1), col="blue", lwd=2)
+
+abline(v=beta0+sd0.theory*c(-1,0,1), col="red")
+
+curve(dnorm(xi, mean=beta0, sd=sd0.theory), xname="xi", 
+      from=range(pretty(beta0.sim))[1], 
+      to=range(pretty(beta0.sim))[2], 
+      n=1001, col="red", add=T)
+
+#   slope
+sd1.theory <- sqrt(sigma^2/sum((x-mean(x))^2))
+hist(beta1.sim, xlab="beta1", freq=F, ylim=c(0,6), breaks=seq(2,4,by=0.05), 
+     xlim=range(pretty(beta1.sim)), col="gray")
+
+abline(v=mean(beta1.sim)+sd(beta1.sim)*c(-1,0,1), col="blue", lwd=2)
+
+abline(v=beta1+sd1.theory*c(-1,0,1), col="red")
+
+curve(dnorm(xi, mean=beta1, sd=sd1.theory), xname="xi", 
+      from=range(pretty(beta1.sim))[1], 
+      to=range(pretty(beta1.sim))[2], 
+      n=1001, col="red", add=T)
+
+par(op)
+
+#   REMARKS: The more simulations are carried out, the closer are the expected 
+#             values calculated from the simulation results to the theoretical 
+#             values. This has to be this way: if we repeat the simulation 
+#             infinitely often, then the theoretical value would come out.
