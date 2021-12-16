@@ -319,7 +319,7 @@ plot(df$Boiling ~ log10(df$Pressure))
 grid()
 
 #   Note: With the log the points lie almost perfectly on a straight line
-
+df$Pressure.log <- log10(df$Pressure)
 
 #*------------------------------------------------------------------------------
 #* b. Fit and plot a straight line to the transformed data points. Give the 
@@ -327,13 +327,13 @@ grid()
 #*------------------------------------------------------------------------------
 
 model <- lm(Boiling ~ Pressure, data = df)
-model.log <- lm(Boiling ~ log10(Pressure), data = df)
+model.log <- lm(Boiling ~ Pressure.log, data = df)
 
 par(mfrow=c(1,2))
 plot(df$Boiling ~ df$Pressure)
 grid()
 abline(model, col = "red")
-plot(df$Boiling ~ log10(df$Pressure))
+plot(df$Boiling ~ df$Pressure.log)
 grid()
 abline(model.log, col = "red")
 
@@ -351,7 +351,7 @@ summary(model.log)
 #*    the ﬁt of the full data. What are your observations?
 #*------------------------------------------------------------------------------
 sub <- c(1:11, 13:17)
-model.log.2 <- lm(Boiling ~ log10(Pressure), data = df, subset = sub)
+model.log.2 <- lm(Boiling ~ Pressure.log, data = df, subset = sub)
 summary(model.log.2)
 
 par(mfrow=c(1,2))
@@ -390,11 +390,47 @@ confint(model.log.2, parm = 2, level = 0.95)
 #*    the response of this estimator and add the complete conﬁdence interval 
 #*    band to the scatter diagram.
 #*------------------------------------------------------------------------------
-pred <- predict(model.log.2, newdata = data.frame(Pressure = log10(26))); pred
+#* Checking in which range the prediction will be
+range(df$Pressure)
 
-confint(pred, level = 0.95)
+df.new <- data.frame(Pressure.log = log10(seq(15, 35, by = 0.1)))
+
+Boil.confint <- predict(model.log.2, newdata = df.new,
+                        interval = "confidence",
+                        level = 0.95)
+
+# Which values has now the askes pressure of 26?
+Boil.confint[df.new$Pressure.log==log10(26),]
+
+#   scatter diagram: Time versus Volume with confidence intervals on the 
+#   response
+par(mfrow=c(1,1))
+plot(Boiling ~ Pressure.log, df, subset=-12, pch=20, 
+     main="Boiling versus log(Pressure), subset=-12")
+grid()
+abline(v=log10(26), col="red")
+#   add best model
+lines(df.pred$Pressure, Boil.confint[,"fit"], lty=1)
+#   add confidence intervals on the response
+lines(df.pred$Pressure, Boil.confint[,"lwr"], lty=2)
+lines(df.pred$Pressure, Boil.confint[,"upr"], lty=2)
 
 #*------------------------------------------------------------------------------
 #* g. Calculate the 95% prediction interval and add the complete prediction 
 #*    interval band to the scatter diagram.
 #*------------------------------------------------------------------------------
+# Predicting with the prediction interval
+Boil.preds <- predict(model.log.2, newdata = df.new,
+                      interval = "prediction",
+                      level = 0.95)
+Boil.preds[df.new$Pressure.log == log10(26),]
+
+#   NOTE: The prediction interval is wider than the confidenceinterval
+
+# add prediction intervals
+lines(df.new$Pressure.log, Boil.preds[, "lwr"], lty = 3)
+lines(df.new$Pressure.log, Boil.preds[, "upr"], lty = 3)
+legend("topleft", legend=c("best model", 
+                           "confidence intervals on the response", 
+                           "prediction intervals"), 
+       lty=c(1,2,3), bty="n")
