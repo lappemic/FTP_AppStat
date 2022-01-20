@@ -426,3 +426,74 @@ summary(mod.2)$coef
 #            It is of course always possible to make a type II error, but since we have no further information
 #            about the lathe process we cannot say anything.
 #            We should ask the mechanical engineer who collected the data and knows the machine.
+
+
+#*******************************************************************************
+#* Problem 9.4.4 (Experiment on a Dairy Product, cf. [32], Reg3, Problem 4). 
+#* The data in the ﬁle oxygen.dat come from an experiment on a dairy product. We
+#* want to empirically model the oxygen uptake (O2UP) [in milligrams per minute] 
+#* from the data collected using ﬁve chemical measurements. Chemical measurements 
+#* include both biological (BOD) and chemical (COD) oxygen demand, Kjeldahl’s 
+#* total nitrogen content (TKN), total solids (TS) and volatile solids (TVS) that 
+#* are part of the solids. 
+#* All chemical measurements are given in milligrams per liter.
+#* 
+#* The measurements were carried out on a sample of a dairy product which was 
+#* kept in a water suspension for 220 days. All observations were made on the 
+#* same suspension over time. The aim of this analysis is a ﬁrst modelling of 
+#* the dependence of the logarithmic oxygen uptake on the chemical variables. 
+#* We will omit observations 1 and 20 in the following analysis. The resulting 
+#* model ßwill then be checked later for its predictive suitability.
+#*******************************************************************************
+#* a. Fit the model
+#* 
+#*  log(O2UP) = β_0 + β_1 * BOD + β_2 * TKN + β_3 * TS + β_4 * TVS + β_5 * COD + ε
+#*  
+#*    Report your ﬁndings on the P-values. Comment on the F-statistic in the 
+#*    summary-lmoutput. What are the consequences for the ﬁtted model?
+#* b. Compare the full model in a with the reduced model
+#* 
+#*            log(O2UP) = β_0 + β_3 * TS + β_5 * COD + ε
+#*    
+#*    Report your conclusions.
+#*------------------------------------------------------------------------------
+path <- file.path("04_Datasets", "oxygen.dat")
+data <- read.table(path, header=TRUE)
+str(data)
+summary(data)
+
+data$O2UP.log    <- log10(data$O2UP)
+
+#*------------------------------------------------------------------------------
+#* a. Fit the model
+#* 
+#*  log(O2UP) = β_0 + β_1 * BOD + β_2 * TKN + β_3 * TS + β_4 * TVS + β_5 * COD + ε
+#*  
+#*    Report your ﬁndings on the P-values. Comment on the F-statistic in the 
+#*    summary-lmoutput. What are the consequences for the ﬁtted model?
+#*------------------------------------------------------------------------------
+mod.full <- lm(O2UP.log ~ BOD + TKN + TS + TVS + COD, data, subset=-c(1,20))
+summary(mod.full)
+
+#   REMARKS:
+#   1. All estimated coefficients except the intercept and TS are not significantly different of zero.
+#      In extremis this could imply that the explanatory variables have no influence on O2UP.log.
+#   2. On the other hand, the F-statistic with P=1.815e-05 < 0.05 rejects the fear mentioned above.
+
+#*------------------------------------------------------------------------------
+#* b. Compare the full model in a with the reduced model
+#* 
+#*            log(O2UP) = β_0 + β_3 * TS + β_5 * COD + ε
+#*    
+#*    Report your conclusions.
+#*------------------------------------------------------------------------------
+mod.red <- lm(O2UP.log ~ TS + COD, data, subset=-c(1,20))
+summary(mod.red)
+
+#   compare models with an anova
+anova(mod.full, mod.red)
+
+#   REMARKS:
+#   1. The anova-comparison shows that the reduced model describes the data as well as the full model.
+#   2. The null hypothesis beta1=beta2=beta4=0, on the other hand, cannot be rejected since Pr(>F)=0.9805 > 0.05.
+
