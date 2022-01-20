@@ -332,13 +332,96 @@ par(op)
 
 
 #*******************************************************************************
-#* Problem 8.5.2 (Anscombe Quartet). 
-#* In 1973 F. J. Anscombe published, cf. [1], four diﬀerent data sets each 
-#* containing an x- and a y-variable, cf. Ex. 8.1.3. All four artiﬁcial data sets
-#* can be found in anscombe.dat.
+#* Problem 8.5.3 (Understand q-q Plot with Simulation)
+#* With the following simulation you will become familiar mit the q-q plot.
 #*******************************************************************************
-#* a. Fit for each of the four data sets a simple linear model. Report in a 
-#*    table all intercepts, slopes, corresponding standard errors, residual 
-#*    standard errors and coeﬃcients of determination.
-#* b. b. Reproduce Fig. 8.1.v and report all your ﬁndings and conclusions.
+#* a. Normal distribution. Draw n = 10, 20, 50 and 100 random numbers from a 
+#*    standard normal distribution and check normality with a q-q plot. 
+#*    Repeat this several times to get an idea of the randomness of the 
+#*    deviations in the q-q plot.
+#* b. Heavy-tailed distribution. Draw n = 10 and 100 random numbers from a 
+#*    Student’s t-distribution with 20, 7 and 3 degrees of freedom and check 
+#*    normality with a q-q plot. Repeat this several times to get an idea of 
+#*    the randomness of the deviations in the q-q plot.
+#* c. Skewed Distribution. Draw n = 10 and 100 random numbers from a 
+#*    χ^2 -distribution with 20 and 1 degrees of freedom and check normality 
+#*    with a q-q plot. Repeat this several times to get an idea of the 
+#*    randomness of the deviations in the q-q plot.
 #*------------------------------------------------------------------------------
+
+
+#*------------------------------------------------------------------------------
+#* a. Normal distribution. Draw n = 10, 20, 50 and 100 random numbers from a 
+#*    standard normal distribution and check normality with a q-q plot. 
+#*    Repeat this several times to get an idea of the randomness of the 
+#*    deviations in the q-q plot.
+#*------------------------------------------------------------------------------
+n <- 1000 # -> 10 20 50 100
+set.seed(1)
+for(i in 1:100){
+  x <- rnorm(n, mean=0, sd=1)
+  #   q-q plot
+  qqnorm(x, pch=20, xlim=10*c(-1,1), ylim=10*c(-1,1), 
+         main="q-q plot: Standard Normal Distribution")
+  qqline(x, col="red")
+  grid()
+  dev.flush()
+  Sys.sleep(0.3)
+}
+
+#*------------------------------------------------------------------------------
+#* b. Heavy-tailed distribution. Draw n = 10 and 100 random numbers from a 
+#*    Student’s t-distribution with 20, 7 and 3 degrees of freedom and check 
+#*    normality with a q-q plot. Repeat this several times to get an idea of 
+#*    the randomness of the deviations in the q-q plot.
+#*------------------------------------------------------------------------------
+n <- 20 # 20 100
+dfree <- 3 # 3 7 20
+set.seed(1)
+for(i in 1:50){
+  x <- rt(n, df=dfree)
+  #   q-q plot
+  qqnorm(x, pch=20, xlim=10*c(-1,1), ylim=10*c(-1,1), main="q-q plot: Student's t Distribution")
+  qqline(x, col="red")
+  grid()
+  dev.flush()
+  Sys.sleep(0.3)
+}
+
+
+#*------------------------------------------------------------------------------
+#* c. Skewed Distribution. Draw n = 10 and 100 random numbers from a 
+#*    χ^2(chi^2) -distribution with 20 and 1 degrees of freedom and check normality 
+#*    with a q-q plot. Repeat this several times to get an idea of the 
+#*    randomness of the deviations in the q-q plot.
+#*------------------------------------------------------------------------------
+n <- 100 # 20 100
+dfree <- 3 # 1 20
+set.seed(1)
+for(i in 1:50){
+  x <- rchisq(n, df=dfree)
+  #   q-q plot
+  qqnorm(x, pch=20, xlim=10*c(-1,1), ylim=10*c(-1,1), main="q-q plot: chi^2 Distribution")
+  qqline(x, col="red")
+  grid()
+  dev.flush()
+  Sys.sleep(0.3)
+}
+
+
+#*******************************************************************************
+#* Problem 8.5.4 (Windmill). 
+#* We come back to Prob. 7.5.2. Investigate the following regression models:
+#* 
+#* DCOutput       =   β_0 + β_1 * WindVelocity + ε
+#* 
+#* 
+#* log(DCOutput)  =   β_0 + β_1 * log(WindVelocity) + ε
+#* 
+#*                                β_1
+#* DCOutput       =   β_0 + ------------- + ε
+#*                          WindVelocity
+#* 
+#* Perform a complete residual analysis for the variants. 
+#* Report all your ﬁndings and conclusions. Which model is the best?
+#*******************************************************************************
