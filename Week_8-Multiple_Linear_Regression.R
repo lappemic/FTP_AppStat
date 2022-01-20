@@ -669,3 +669,122 @@ par(op)
 #*  in connection with the complete data set. Perform a complete residual 
 #*  analysis. Report all your ﬁndings and conclusions.
 #*******************************************************************************
+path <- file.path("04_Datasets", "forbes.dat")
+data <- read.table(path, header=TRUE)
+str(data)
+
+#   define new variable
+data$Pressure.log <- log10(data$Pressure)
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (1) Model with log-transformed Pressure
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   Estimation of the parameters
+mod.log <- lm(Boiling ~ Pressure.log, data)
+summary(mod.log)
+
+#   Scatter diagram: Boiling ~ Pressure.log
+par(mfrow=c(1,1))
+plot(Boiling ~ Pressure.log, data, pch=20, main="Boiling ~ log(Pressure)")
+grid()
+abline(mod.log)
+#identify(data$Pressure.log, data$Boiling)
+##  12
+
+#   REMARK: It is obvious that the straight line fits pretty well.
+#           The observation with index i=12 is far away from the straight line 
+#           and will be marked as an outlier in the following residual analysis.
+
+#   residual analysis
+op <- par(mfcol=c(2,3))
+#   Tukey-Anscombe plot
+plot(mod.log, which=1, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod.log, which=1, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   scale-location plot
+plot(mod.log, which=3, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod.log, which=3, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   q-q plot
+plot(mod.log, which=2, pch=20)
+grid()
+plot.lmSim(mod.log, which=2, SEED=1)
+grid()
+par(op)
+
+#   REMARKS: The outlier with index i=12 destroys most of the plots in the residual analysis.
+#            => Remove outlier and try again -> (2)
+#
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (2) Model with log-transformed Pressure without Outlier
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   Estimation of the parameters
+mod.log.red <- lm(Boiling ~ Pressure.log, data, subset=-12)
+summary(mod.log.red)
+
+#   Scatter diagram: Boiling ~ Pressure.log
+par(mfrow=c(1,1))
+plot(Boiling ~ Pressure.log, data, subset=-12, pch=20, main="Boiling ~ log(Pressure) without Outlier")
+grid()
+abline(mod.log.red)
+
+#   REMARK: The straight line fits pretty well.
+
+#   residual analysis
+op <- par(mfcol=c(2,3))
+#   Tukey-Anscombe plot
+plot(mod.log.red, which=1, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod.log.red, which=1, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   scale-location plot
+plot(mod.log.red, which=3, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod.log.red, which=3, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   q-q plot
+plot(mod.log.red, which=2, pch=20)
+grid()
+plot.lmSim(mod.log.red, which=2, SEED=1)
+grid()
+par(op)
+
+#   REMARKS:
+#   1.  Tukey-Anscombe plot shows very curved structure.
+#       In the simulation it is visible that the original curve is not extreme.
+#       => There is no hint that the expected value of the residuals is not constant.
+#   2.  Scale-location plot shows a non-constant behaviour.
+#       In the simulation it is visible that the original curve is not extreme.
+#       => There is no hint that the scattering of the residuals is not constant.
+#   3.  q-q plot shows no obvious discrepancy.
+#       => There is no hint that the residuals are not normally distributed.
+
+#   CONCLUSION: The fit without the 12th observation is satisfactory.
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   Correlation of the Residuals
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+data
+barplot(data$Pressure)
+
+#   REMARK: We observe that the variable Pressure is ordered 
+#           (except observation i=14). Therefore, the original order is very likely lost.
+#           => An investigation of the correlation of the residuals is meaningless.
