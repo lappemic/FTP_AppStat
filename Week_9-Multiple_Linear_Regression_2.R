@@ -126,38 +126,210 @@ predict(mod, newdata=data.new, interval="prediction", level=0.95)
 path <- file.path("04_Datasets", "catheter.dat")
 data <- read.table(path, header=TRUE)
 str(data)
+summary(data)
+
+#   REMARK: These are data from infants to adolescents.
 
 #*------------------------------------------------------------------------------
 #* a. Fit the model to the data. Overall, do the explanatory variables inﬂuence 
 #*    the target values?
 #*------------------------------------------------------------------------------
 mod <- lm(Length ~ Size + Weight, data = data)
+summary(mod)
+
+#   REMARKS: The overall test has F=18.65 on (2,9) degrees of fredom and 
+#             P-value=0.0006301 < 5%.
+#            Therefore at least one of the coefficients beta1 and beta2 is 
+#             different of zero.
+
+cor(data$Size, data$Weight)
+#   REMARKS: The explanatory variables Size and Weight are strongly correlated. 
+#             Is obvious! See also (g).
+
 #*------------------------------------------------------------------------------
 #* b. Test the null hypothesis H_0: β_1 = 0 and H_0: β_2 = 0. 
 #*    Does the result contradict the overall test?
 #*------------------------------------------------------------------------------
+#   1. The P-value for the hypothesis H0: beta1=0 is 0.6070 > 5%.
+#      => The coefficient might well be zero.
+#   2. The P-value for the hypothesis H0: beta2=0 is 0.2753 > 5%.
+#      => The coefficient might well be zero.
+#   But this does not imply that both coefficients might be zero. 
+#   So, no contradiction to (a).
+
 
 #*------------------------------------------------------------------------------
 #* c. Check the assumptions on the errors with a normal q-q plot.
 #*------------------------------------------------------------------------------
+#   residual analysis
+op <- par(mfcol=c(1,2))
+#   q-q plot
+plot(mod, which=2, pch=20)
+grid()
+plot.lmSim(mod, which=2, SEED=1)
+grid()
+par(op)
+
+#   REMARK: The few data points do not scatter nicely around a straight line 
+#           and show a clear deviation towards a heavy-tailed distribution.
+#           However, the deviations are within the stochastic fluctuation (gray).
+#           Therefore, we have no indications of a deviation from the normal distribution.
+
 
 #*------------------------------------------------------------------------------
 #* d. Remove the observation with the smallest residual and repeat the analysis. 
 #*    Compare the results and report your conclusions.
 #*------------------------------------------------------------------------------
+ind <- which.min(residuals(mod));   ind
+
+# fit regression model
+mod.red <- lm(Length ~ Size + Weight, data, subset=-ind)
+summary(mod.red)
+
+#   REMARK: Residual standard error and standard errors of the coeficients are significantly smaller with the new fit.
+#           The coefficient beta2 is now significant, i.e. there is an influence of the weight on the target variable.
+#           The explanatory variable Size, on the other hand, plays an unimportant role.
 
 #*------------------------------------------------------------------------------
 #* e. Report a table of 95% prediction intervals for all observations. In reality
 #*    a prediction error of ±2 cm is acceptable. Is this model and the data 
 #*    therefore useful in practice?
 #*------------------------------------------------------------------------------
+Length.pred <- predict(mod, interval="prediction");   Length.pred
+##    Warning message:
+##    In predict.lm(mod, interval = "prediction") :
+##      predictions on current data refer to _future_ responses
+
+#   some plots
+op <- par(mfrow=c(1,2))
+#   length of prediction intervals
+plot(data$Length, Length.pred[,"upr"] - Length.pred[,"lwr"], ylim=c(0,40), type="h",
+     xlab="Length", ylab="Length of Prediction Intervals")
+grid()
+abline(h=2, col="red")
+abline(h=0)
+
+#   predicted versus real
+plot(Length.pred[,"fit"] ~ data$Length, pch=20, xlim=c(0,80), ylim=c(0,80),
+     xlab="Length", ylab="Fitted Values")
+grid()
+abline(a=0,b=1, lty=3)
+#   add prediction intervals
+segments(x=data$Length,y=Length.pred[,"lwr"], x0=data$Length,y0=Length.pred[,"upr"])
+par(op)
+
+#   REMARK: Prediction intervals are almost ten times too large (tolerance ± 2 cm
+#            -> interval ± ~20cm).
+#           Therefore this model is not at all useful to predict the length of a catheter.
 
 #*------------------------------------------------------------------------------
 #* f. Repeat question e. with simpler reduced models. Report all your ﬁndings and
 #*    conclusions.
 #*------------------------------------------------------------------------------
+mod.1 <- lm(Length ~ Size, data)
+summary(mod.1)
+
+mod.2 <- lm(Length ~ Weight, data)
+summary(mod.2)
+
+#   data with best fit
+op <- par(mfrow=c(1,2))
+plot(Length ~ Size, data, pch=20, main="Length versus Size with best model")
+grid()
+abline(mod.1)
+
+plot(Length ~ Weight, data, pch=20, main="Length versus Weight with best model")
+grid()
+abline(mod.2)
+par(op)
+
+Length.pred1 <- predict(mod.1, interval="prediction")
+Length.pred2 <- predict(mod.2, interval="prediction")
+op <- par(mfrow=c(2,2))
+#   length of prediction intervals
+plot(data$Length, Length.pred1[,"upr"] - Length.pred1[,"lwr"], ylim=c(0,40), type="h",
+     xlab="Length", ylab="Length of Prediction Intervals", main="Length versus Size")
+grid()
+abline(h=2, col="red")
+abline(h=0)
+plot(data$Length, Length.pred2[,"upr"] - Length.pred2[,"lwr"], ylim=c(0,40), type="h",
+     xlab="Length", ylab="Length of Prediction Intervals", main="Length versus Weight")
+grid()
+abline(h=2, col="red")
+abline(h=0)
+
+#   predicted versus real
+plot(Length.pred1[,"fit"] ~ data$Length, pch=20, xlim=c(0,80), ylim=c(0,80),
+     xlab="Length", ylab="Fitted Values")
+grid()
+abline(a=0,b=1, lty=3)
+#   add prediction intervals
+segments(x=data$Length,y=Length.pred1[,"lwr"], x0=data$Length,y0=Length.pred1[,"upr"])
+plot(Length.pred2[,"fit"] ~ data$Length, pch=20, xlim=c(0,80), ylim=c(0,80),
+     xlab="Length", ylab="Fitted Values")
+grid()
+abline(a=0,b=1, lty=3)
+#   add prediction intervals
+segments(x=data$Length,y=Length.pred2[,"lwr"], x0=data$Length,y0=Length.pred2[,"upr"])
+par(op)
+
+#   REMARK: Prediction intervals are still almost then times too large.
+#           Therefore this model is not at all useful to predict the length of a catheter.
+
 
 #*------------------------------------------------------------------------------
 #* g. Repeat question e. with simpler reduced models and the reduced data set 
 #*    from question d. Report all your ﬁndings and conclusions.
 #*------------------------------------------------------------------------------
+mod.1.red <- lm(Length ~ Size, data, subset=-ind)
+summary(mod.1.red)
+
+mod.2.red <- lm(Length ~ Weight, data, subset=-ind)
+summary(mod.2.red)
+
+#   data with best fit
+op <- par(mfrow=c(1,2))
+plot(Length ~ Size, data=data[-ind,], pch=20, main="Length versus Size with best model")
+grid()
+abline(mod.1.red)
+
+plot(Length ~ Weight, data=data[-ind,], pch=20, main="Length versus Weight with best model")
+grid()
+abline(mod.2.red)
+par(op)
+
+Length.pred1.red <- predict(mod.1.red, interval="prediction")
+Length.pred2.red <- predict(mod.2.red, interval="prediction")
+op <- par(mfrow=c(2,2))
+#   length of prediction intervals
+plot(data$Length[-ind], Length.pred1.red[,"upr"] - Length.pred1.red[,"lwr"], ylim=c(0,40), type="h",
+     xlab="Length", ylab="Length of Prediction Intervals", main="Length versus Size (reduced data set)")
+grid()
+abline(h=2, col="red")
+abline(h=0)
+plot(data$Length[-ind], Length.pred2.red[,"upr"] - Length.pred2.red[,"lwr"], ylim=c(0,40), type="h",
+     xlab="Length", ylab="Length of Prediction Intervals", main="Length versus Weight (reduced data set)")
+grid()
+abline(h=2, col="red")
+abline(h=0)
+
+#   predicted versus real
+plot(Length.pred1.red[,"fit"] ~ data$Length[-ind], pch=20, xlim=c(0,80), ylim=c(0,80),
+     xlab="Length", ylab="Fitted Values")
+grid()
+abline(a=0,b=1, lty=3)
+#   add prediction intervals
+segments(x=data$Length[-ind],y=Length.pred1.red[,"lwr"], x0=data$Length[-ind],y0=Length.pred1.red[,"upr"])
+plot(Length.pred2.red[,"fit"] ~ data$Length[-ind], pch=20, xlim=c(0,80), ylim=c(0,80),
+     xlab="Length", ylab="Fitted Values")
+grid()
+abline(a=0,b=1, lty=3)
+#   add prediction intervals
+segments(x=data$Length[-ind],y=Length.pred2.red[,"lwr"], x0=data$Length[-ind],y0=Length.pred2.red[,"upr"])
+par(op)
+
+#   REMARK: Prediction intervals are still too large.
+#           The only model which reduced the prediction error significantly is 
+#           the model Length ~ Weight with the reduced data set.
+#           But still, this model is not yet useful to predict the length of a catheter.
+#           => We need other explanatory variables.
