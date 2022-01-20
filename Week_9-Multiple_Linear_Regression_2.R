@@ -333,3 +333,96 @@ par(op)
 #           the model Length ~ Weight with the reduced data set.
 #           But still, this model is not yet useful to predict the length of a catheter.
 #           => We need other explanatory variables.
+
+
+#*******************************************************************************
+#* Problem 9.4.3 (Surface Finish, cf. [23], Example 12.13). 
+#* A mechanical engineer is investigating the surface ﬁnish of metal parts 
+#* produced on a lathe and its relationship to the speed [in revolutions per 
+#* minute] of the lathe. Two diﬀerent types of cutting tools were used. 
+#* The data set surface-finish.dat contains 20 measurements of the quality 
+#* (Quality), the speed of the lathe (RPM) and the type of the cutting tool (Type).
+#*******************************************************************************
+#* a. Represent the data in a scatter diagram.
+#* b. Fit a regression model with a linear relationship between the quality and 
+#*    the rotational speed and with the same slope for both types of the cutting 
+#*    tool but diﬀerent intercepts. Add the best ﬁts to the scatter diagram of 
+#*    question a.
+#* c. Fit a regression model with a linear relationship between the quality and 
+#*    the rotational speed and with individual slopes and intercepts for both 
+#*    types of the cutting tool. Add the best ﬁts to the scatter diagram of 
+#*    question a.
+#* d. Test the hypothesis of equal slopes on the 5% level.
+#*------------------------------------------------------------------------------
+path <- file.path("04_Datasets", "surface-finish.dat")
+data <- read.table(path, header=TRUE)
+str(data)
+# Type should be a factor
+data$Type <- as.factor(data$Type)
+
+summary(data)
+
+#*------------------------------------------------------------------------------
+#* a. Represent the data in a scatter diagram.
+#*------------------------------------------------------------------------------
+plot(Quality ~ RPM, data, pch=20, col=as.integer(Type)+1, 
+     xlim=c(0,300), ylim=c(0,60), main="Quality versus RPM")
+grid()
+abline(h=0,v=0)
+legend("topleft", pch=20, col=c(2,3), legend=levels(data$Type))
+
+#   REMARK: We can observe two point clouds, one for Type="DM302" and the other 
+#           for Type="DM416" which scatter around two straight lines.
+
+#*------------------------------------------------------------------------------
+#* b. Fit a regression model with a linear relationship between the quality and 
+#*    the rotational speed and with the same slope for both types of the cutting 
+#*    tool but diﬀerent intercepts. Add the best ﬁts to the scatter diagram of 
+#*    question a.
+#*------------------------------------------------------------------------------
+mod.1 <- lm(Quality ~ RPM + Type, data)
+summary(mod.1)
+
+#   REMARKS:
+#   1. The first straight line belonging to Type="DM302" has intercept=14.276196 
+#       and slope=0.141150.
+#   2. The second straight line belonging to Type="DM416" has 
+#       intercept=14.276196-13.280195=0.996001 and slope=0.141150.
+
+#   add the best fit to the scatter diagram
+coef(mod.1)[1:2]
+coef(mod.1)[3]
+abline(coef(mod.1)[1:2], col=2)
+abline(coef(mod.1)[1:2] + c(coef(mod.1)[3],0), col=3)
+
+#*------------------------------------------------------------------------------
+#* c. Fit a regression model with a linear relationship between the quality and 
+#*    the rotational speed and with individual slopes and intercepts for both 
+#*    types of the cutting tool. Add the best ﬁts to the scatter diagram of 
+#*    question a.
+#*------------------------------------------------------------------------------
+mod.2 <- lm(Quality ~ RPM * Type, data)
+summary(mod.2)
+
+#   REMARKS:
+#   1. The first straight line belonging to Type="DM302" has intercept=11.50294 
+#       and slope=0.15293.
+#   2. The second straight line belonging to Type="DM416" has 
+#       intercept=11.50294-6.09423=5.40871 and slope=0.15293-0.03057=0.12236.
+
+#   add the best fit to the scatter diagram
+abline(coef(mod.2)[1:2], col=2, lty=2)
+abline(coef(mod.2)[1:2] + coef(mod.2)[3:4], col=3, lty=2)
+
+#*------------------------------------------------------------------------------
+#* d. Test the hypothesis of equal slopes on the 5% level.
+#*------------------------------------------------------------------------------
+summary(mod.2)$coef
+
+#   REMARKS: In the lm-summary-output we look at the line of "RPM:TypeDM416".
+#            The Estimate -0.03056953 is the difference in the slopes of the two lines.
+#            Its P-value=9.239159e-02 is bigger than 0.05 and therefore we accept the hypothesis of equal slopes.
+#            On the other hand, we would reject it on the 10% level.
+#            It is of course always possible to make a type II error, but since we have no further information
+#            about the lathe process we cannot say anything.
+#            We should ask the mechanical engineer who collected the data and knows the machine.
