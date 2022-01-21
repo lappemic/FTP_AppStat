@@ -328,3 +328,252 @@ summary(mod.ls.red)
 #   REMARK: This is more or less the same result as with the robust MM-regression.
 
 
+#*******************************************************************************
+#* Problem 10.5.4 (Oxidation of Ammonia to Nitric Acid, cf. [5], Ex. 12.12)
+#* In a chemical plant, ammonia is processed by oxidation in nitric acid. The 
+#* reaction is inﬂuenced by several factors. We want to study the dependence of 
+#* the ammonia loss (AmmoniaLoss) on the airﬂow of the system (AirFlow), on the 
+#* cooling water temperature (WaterTemp) and on the acid concentration (AcidConc). 
+#* There are 19 measurements on consecutive days (Day). The data is given in the 
+#* data frame ammonia-oxidation.dat.
+#*******************************************************************************
+#* a. Fit the model
+#*    
+#*      AmmoniaLoss = β_0 + β_1 * AirFlow + β_2 * WaterTemp + β_3 * AcidConc + ε
+#*    
+#*    with least-squares. Make a residual analysis and analyse the Tukey-Anscombe 
+#*    and the normal q-q plot. Report your ﬁndings.
+#* b. Fit the same model with a regression MM-estimator. Compare the summary-output 
+#*    with the output of question a. Make a residual analysis and compare it also 
+#*    with the analysis of question a.
+#* c. Check the time dependence of the residuals.
+#-------------------------------------------------------------------------------
+#   load package
+require(robustbase)
+
+#   read data
+file <- file.path("04_Datasets", "ammonia-oxidation.dat")
+data <- read.table(file, header=TRUE)
+str(data)
+summary(data)
+
+#-------------------------------------------------------------------------------
+#* a. Fit the model
+#*    
+#*      AmmoniaLoss = β_0 + β_1 * AirFlow + β_2 * WaterTemp + β_3 * AcidConc + ε
+#*    
+#*    with least-squares. Make a residual analysis and analyse the Tukey-Anscombe 
+#*    and the normal q-q plot. Report your ﬁndings.
+#-------------------------------------------------------------------------------
+mod <- lm(AmmoniaLoss ~ AirFlow + WaterTemp + AcidConc, data)
+summary(mod)
+
+#   diagnostic tools
+op <- par(mfcol=c(2,4))
+#   Tukey-Anscombe plot
+plot(mod, which=1, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod, which=1, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   scale-location plot
+plot(mod, which=3, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod, which=3, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   q-q plot
+plot(mod, which=2, pch=20)
+grid()
+plot.lmSim(mod, which=2, SEED=1)
+grid()
+
+#   residuals against leverages
+plot(mod, which=5, pch=20)
+grid()
+abline(h=0, lty=3)
+par(op)
+
+#   REMARKS
+#   1.  Tukey-Anscombe plot: Is the expected value constant around zero?
+#       There are three strange observations with index i=1, 2 and 19.
+#   3.  q-q plot: Are the residuals normally distributed.
+#       There are three strange observations with index i=1, 2 and 19.
+#       => robust MM-estimator
+
+
+
+#-------------------------------------------------------------------------------
+#* b. Fit the same model with a regression MM-estimator. Compare the summary-output 
+#*    with the output of question a. Make a residual analysis and compare it also 
+#*    with the analysis of question a.
+#-------------------------------------------------------------------------------
+mod.rob <- lmrob(AmmoniaLoss ~ AirFlow + WaterTemp + AcidConc, data)
+summary(mod.rob)
+
+#   diagnostic tools
+op <- par(mfcol=c(2,3))
+plot(mod.rob)
+par(op)
+
+#   REMARK: Three outliers with index i=1, 2 and 19 are reported.
+#           The estimated coefficients and the standartd errors change.
+#           => We trust the robust estimation.
+
+
+#-------------------------------------------------------------------------------
+#* c. Check the time dependence of the residuals.
+#-------------------------------------------------------------------------------
+#   Correlation of the Residuals
+op <- par(mfcol=c(2,2))
+ts0 <- residuals(mod)
+max0 <- max(abs(range(ts0)))
+par(mfrow=c(1,1))
+plot(ts0, ylim=max0*c(-1,1), type="h", xlab="Index i", ylab="Residuals", 
+     main="AmmoniaLoss ~ AirFlow + WaterTemp + AcidConc (ls estimator)")
+grid()
+lines(ts0, type="h")
+abline(h=0)
+#   correlation:  R[t+1] ~ R[t]
+plot(ts0[-length(ts0)], ts0[-1], pch=20, xlim=max0*c(-1,1), ylim=max0*c(-1,1), xlab="e[i]", ylab="e[i+1]")
+grid()
+
+ts.rob <- residuals(mod.rob)
+max.rob <- max(abs(range(ts.rob)))
+plot(ts.rob, ylim=max.rob*c(-1,1), type="h", xlab="Index i", ylab="Residuals", main="AmmoniaLoss ~ AirFlow + WaterTemp + AcidConc (MM-estimator)")
+grid()
+lines(ts.rob, type="h")
+abline(h=0)
+#   correlation:  R[t+1] ~ R[t]
+plot(ts.rob[-length(ts.rob)], ts.rob[-1], pch=20, xlim=max.rob*c(-1,1), ylim=max.rob*c(-1,1), xlab="e[i]", ylab="e[i+1]")
+grid()
+par(op)
+
+#   REMARKS: Both models show uncorrelated residuals.
+
+#*******************************************************************************
+#* Problem 10.5.5 (Experiment on a Dairy Product, cf. [32], Reg4, Problem 5). 
+#* We come back to Prob. 9.4.4 and 10.5.2. Fit the same models as in Prob. 9.4.4 
+#* with regression MM-estimators to the to complete data set. Compare the 
+#* estimated coeﬃcients with the coeﬃcients of Prob. 10.5.2 and make a residual 
+#* analysis and compare it too. Report your ﬁndings.
+#*******************************************************************************
+#   read data
+file <- file.path("04_Datasets", "oxygen.dat")
+data <- read.table(file, header=TRUE)
+str(data)
+summary(data)
+
+#   define new log-transformed variables
+data$O2UP.log    <- log10(data$O2UP)
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (1.a) Least-squares Estimation (full model)
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+mod.full.all <- lm(O2UP.log ~ BOD + TKN + TS + TVS + COD, data)
+summary(mod.full.all)
+
+#   diagnostic tools
+op <- par(mfcol=c(2,4))
+#   Tukey-Anscombe plot
+plot(mod.full.all, which=1, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod.full.all, which=1, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   scale-location plot
+plot(mod.full.all, which=3, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod.full.all, which=3, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   q-q plot
+plot(mod.full.all, which=2, pch=20)
+grid()
+plot.lmSim(mod.full.all, which=2, SEED=1)
+grid()
+
+#   residuals against leverages
+plot(mod.full.all, which=5, pch=20)
+grid()
+abline(h=0, lty=3)
+par(op)
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (1.b) Least-squares Estimation (reduced model)
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+mod.all <- lm(O2UP.log ~ TS + COD, data)
+summary(mod.all)
+
+#   diagnostic tools
+op <- par(mfcol=c(2,4))
+#   Tukey-Anscombe plot
+plot(mod.all, which=1, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod.all, which=1, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   scale-location plot
+plot(mod.all, which=3, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod.all, which=3, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   q-q plot
+plot(mod.all, which=2, pch=20)
+grid()
+plot.lmSim(mod.all, which=2, SEED=1)
+grid()
+
+#   residuals against leverages
+plot(mod.all, which=5, pch=20)
+grid()
+abline(h=0, lty=3)
+par(op)
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (2.a) Robust MM-Estimation  (full model)
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+mod.full.all.rob <- lmrob(O2UP.log ~ BOD + TKN + TS + TVS + COD, data)
+summary(mod.full.all.rob)
+
+#   diagnostic tools
+op <- par(mfcol=c(2,3))
+plot(mod.full.all.rob)
+par(op)
+
+#   REMARK: Observation with index i=1 could be an outlier.
+
+
+#-------------------------------------------------------------------------------
+#   (2.b) Robust MM-Estimation  (reduced model)
+#-------------------------------------------------------------------------------
+mod.all.rob <- lmrob(O2UP.log ~ TS + COD, data)
+summary(mod.all.rob)
+
+#   diagnostic tools
+op <- par(mfcol=c(2,3))
+plot(mod.all.rob)
+par(op)
+
+#   REMARK: Observations with index i=1 and 20 are outliers, cf. residuals versus fitted values.
+#           => Least-squares estimation without observations with index i=1 and 20,
+#              cf. "Solution 9.4.4 Experiment on a dairy product.R".
+
+
+
+
