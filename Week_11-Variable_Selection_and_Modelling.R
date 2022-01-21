@@ -242,25 +242,165 @@ summary(mod.red.both)
 
 
 #*******************************************************************************
-#* Problem 11.4.1 (Experiment on a Dairy Product, cf. [32], Reg5, Problem 1). 
-#* We come back to Ex. 9.4.4.
-#* a. Fit the model
+#* Problem 11.4.2 (Sniﬀer Data, cf. [43], Chap. 8.3). 
+#* When gasoline is pumped into a tank, hydrocarbon vapors are forced out of the 
+#* tank and into the atmosphere. To reduce this signiﬁcant source of air pollution, 
+#* devices are installed to capture the vapor. In testing these vapor recovery 
+#* systems, a sniﬀer measures the amount recovered. To estimate the eﬃciency of the
+#* system, some method of estimating the total amount given oﬀ must be used. 
+#* To this end, a laboratory experiment was conducted in which the amount of vapor 
+#* given oﬀ was measured under controlled conditions. Four predictors are relevant 
+#* for modelling:
 #* 
-#* log(O2UP) = β 0 + β 1 · BOD + β 2 · TKN + β 3 · TS + β 4 · TVS + β 5 · COD + ε.
-#* 
-#*      Perform a variable selection with a backward elimination using AIC.
-#* b. Fit the trivial model
-#* 
-#*                      log(O2UP) = β 0 + ε.
+#*      TankTemp - initial tank temperature [in ◦ F]
+#*      GasTemp - temperature of the dispensed gasoline [in ◦ F] 
+#*      TankPres - initial vapor pressure in the tank [in psi] 
+#*      GasPres - vapor pressure of the dispensed gasoline [in psi]
 #*      
-#*      Perform a variable selection with a forward selection using AIC.
-#* c. Fit the model
-#* 
-#*              log(O2UP) = β 0 + β 1 · BOD + β 3 · TS + ε.
-#*      
-#*      Perform a variable selection with a search in both directions using AIC.
-#* d. Compare your results. Which model(s) would you like to investigate further?
-#* e. Check for collinearity in the data.
-#* f. Repeat the above without the observations with index i = 2, 3 and 17. 
-#*      How sensitive is variable selection with respect to these observations?
+#* The response is the hydrocarbons (Hydrocarbons) emitted in grams. The data of 
+#* 32 measurements is given in the data frame sniffer.dat.
 #*******************************************************************************
+#* a. Draw a pairs-plot of the complete data set. Report all your ﬁndings which 
+#*    seem to be important with respect to regression modelling of the hydrocarbons.
+#* b. Check for collinearity in the data.
+#* c. Fit the model 
+#* 
+#*      Hydrocarbons = β 0 + β 1 · TankTemp + β 2 · GasTemp
+#*                               + β 3 · TankPres + β 4 · GasPres + ε.
+#*      
+#*      Report all your ﬁndings studying the summary-lm-output.
+#* d. Perform a variable selection using AIC.
+#* e. Which model(s) would you like to investigate further?
+#*------------------------------------------------------------------------------
+#   read data
+file <- file.path("04_Datasets", "sniffer.dat")
+data <- read.table(file, header=TRUE)
+str(data)
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (a) Pairs Plot
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   modified pairs-plot functions (source help(pairs))
+#   put (absolute) correlations on the lower panels (font size is proportional to correlations)
+panel.cor <- function(x, y, digits=2, prefix="", cex.cor, ...){
+        usr <- par("usr")
+        on.exit(par(usr))
+        par(usr=c(0, 1, 0, 1))
+        r <- abs(cor(x, y, use="pairwise.complete.obs"))
+        txt <- format(c(r, 0.123456789), digits=digits)[1]
+        txt <- paste(prefix, txt, sep="")
+        if(missing(cex.cor)){ cex.cor <- 0.8/strwidth(txt) }
+        text(0.5, 0.5, txt, cex=cex.cor*r) }
+#   put histograms on the diagonal
+panel.hist <- function(x, ...){
+        usr <- par("usr")
+        on.exit(par(usr))
+        par(usr=c(usr[1:2], 0, 1.5))
+        h <- hist(x, plot=FALSE)
+        breaks <- h$breaks
+        nB <- length(breaks)
+        y <- h$counts
+        y <- y/max(y)
+        rect(breaks[-nB], 0, breaks[-1], y, col="gray") }
+
+#   pairs-plot of the data
+pairs(data,
+      upper.panel=panel.smooth,
+      lower.panel=panel.cor,
+      diag.panel=panel.hist,
+      pch=20)
+
+#   REMARKS
+#   (1) We can see that all explanatory variables are strongly correlated.
+#   (2) The variable TankTemp has three levels.
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (b) Check for Collinearity in the Data.
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+# fit Model
+mod.full <- lm(Hydrocarbons ~., data)
+#   variance inflation factor
+vif(mod.full)
+
+#   REMARK: We observe an extreme collinearity.
+#           Summary-lm-output has to be read with great care.
+#           => variable selection
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (c) Fit Full Model
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+mod.full <- lm(Hydrocarbons ~., data)
+summary(mod.full)
+
+#   REMARKS: The F-test says that the explanatory variables have an influence on the response.
+#            But, because of the collinearity we do not trust the P-values of the individual coefficients
+
+mod.both <- step(mod.full, direction="both")
+
+summary(mod.both)
+
+#   variance inflation factor
+vif(mod.both)
+
+#   REMARK: We still observe an extreme collinearity.
+#           Summary-lm-output has to be read with great care.
+#           => Variable selection did not help
+#           => Linear combinations of explanatory variables.
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (e) Which model(s) would you like to investigate further?
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   REMARK: None, because of the collinearity.
+#           => Try linear combinations of explanatory variables.
+#              It is important the create new variables which have a physical interpretaion.
+
+#   mean pressure
+data$PresMean  <- (data$GasPres + data$TankPres)/2
+#   delta pressure
+data$PresDelta <- data$GasPres - data$TankPres
+
+#   pairs-plot of the transformed data
+pairs(data[,c("Hydrocarbons", "GasTemp", "PresMean", "PresDelta")],
+      upper.panel=panel.smooth,
+      lower.panel=panel.cor,
+      diag.panel=panel.hist,
+      pch=20)
+
+#   fit model
+mod.trans.full <- lm(Hydrocarbons ~ GasTemp+PresMean+PresDelta, data)
+summary(mod.trans.full)
+
+#   diagnostic tools
+op <- par(mfcol=c(2,4))
+#   Tukey-Anscombe plot
+plot(mod.trans.full, which=1, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod.trans.full, which=1, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   scale-location plot
+plot(mod.trans.full, which=3, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod.trans.full, which=3, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   q-q plot
+plot(mod.trans.full, which=2, pch=20)
+grid()
+plot.lmSim(mod.trans.full, which=2, SEED=1)
+grid()
+
+#   residuals against leverages
+plot(mod.trans.full, which=5, pch=20)
+grid()
+abline(h=0, lty=3)
+par(op)
+
+#   REMARK: Nice model.
+
