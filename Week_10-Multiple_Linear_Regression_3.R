@@ -134,3 +134,61 @@ par(op)
 #* the complete data. What was the motivation to omit the observations with 
 #* index i = 1 and 20? Report all your ﬁndings and conclusions.
 #*******************************************************************************
+path <- file.path("04_Datasets", "oxygen.dat")
+data <- read.table(path, header=TRUE)
+str(data)
+summary(data)
+
+#   define new log-transformed variables
+data$O2UP.log    <- log10(data$O2UP)
+
+
+#   Fit full model with all data
+mod.full.all <- lm(O2UP.log ~ BOD + TKN + TS + TVS + COD, data)
+summary(mod.full.all)
+
+#   diagnostic tools
+op <- par(mfcol=c(2,4))
+#   Tukey-Anscombe plot
+plot(mod.full.all, which=1, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod.full.all, which=1, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   scale-location plot
+plot(mod.full.all, which=3, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod.full.all, which=3, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   q-q plot
+plot(mod.full.all, which=2, pch=20)
+grid()
+plot.lmSim(mod.full.all, which=2, SEED=1)
+grid()
+
+#   residuals against leverages
+plot(mod.full.all, which=5, pch=20)
+grid()
+abline(h=0, lty=3)
+par(op)
+
+#   REMARKS
+#   1.  Tukey-Anscombe plot: Is the expected value constant around zero?
+#       No obvious discrepancies.
+#       => There is no hint that the expected value of the residuals is not constant.
+#   2.  Scale-location plot: Is the variance constant?
+#       No obvious discrepancies.
+#       => There is no hint that the variance of the residuals is not constant.
+#   3.  q-q plot: Are the residuals normally distributed.
+#       Observations with index i=1 and 20 might be outliers.
+#       => But there is no hint that the residuals are not normally distributed.
+#   4.  Residuals versus leverage: Are there influential observations?
+#       Observation with index i=17 has a distance measure of Cook which is bigger than 1.
+#       Some observations have a leverage which is bigger than 0.2.
+#       Observations with index i=1 and 20 are again marked as influential observations.
+
