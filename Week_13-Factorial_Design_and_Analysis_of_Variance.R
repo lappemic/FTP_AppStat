@@ -215,4 +215,143 @@ par(op)
 #             i.e. we have too few observations.
 
 
+#*******************************************************************************
+#* Problem 13.5.3 (Fuel Consumption of Cars, cf. [10], p. 191)
+#* In three US cities (Town) the fuel consumption of ﬁve types of cars was measured 
+#* (Car). For each combination, three test drives were performed. The response 
+#* variable (KMP4L) is the distance [km] the car was able to drive with 4 liters 
+#* fuel. The data is given in the data frame car-fuel.dat.
+#*******************************************************************************
+#* a. Display the variables Car and KMP4L graphically.
+#* b. Analyse the response variable KMP4L with a two factor analysis of variance. 
+#*    Use the full model with interaction. Are the interactions necessary at the 
+#*    a 5% level?
+#* c. Perform a residual analysis.
+#* d. Represent the means with an interaction plot. How can the signiﬁcant 
+#*    interaction be explained?
+#* e. Perform a one-way analysis of variance for each city individually.
+#* f. Repeat subtask b. without the values of San Francisco.
+#*------------------------------------------------------------------------------
+#   read data
+file <- file.path("04_Datasets", "car-fuel.dat")
+data <- read.table(file, header=TRUE)
+data
+str(data)
+data$Car <- as.factor(data$Car)
+data$Town  <- as.factor(data$Town)
+str(data)
+
 #--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (a) Graphic
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+boxplot(KMP4L ~ Car, data, ylim=c(25,50), xlab="Car", ylab="KMP4L", main="KMP4L versus Car and Town")
+grid()
+points(KMP4L ~ Car, data, pch=20, col=Town)
+legend("topleft", levels(data$Town), pch=20, col=1:3)
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (b) ANOVA with Interaction
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+mod <- aov(KMP4L ~ Car * Town, data)
+summary(mod)
+
+#   REMARKS: Both factors "Car" and "Town", as well as the interaction "Car:Town" are significant on the 5% level.
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (c) Residual Analysis
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   Residual analysis (to be able to use plot.lmSim we need to fit the model with lm())
+mod.lm <- lm(KMP4L ~ Car * Town, data)
+summary(mod.lm)
+
+anova(mod.lm)
+
+#   REMARK: This is the same table as in (c).
+
+#   diagnostic tools
+op <- par(mfcol=c(2,3))
+#   Tukey-Anscombe plot
+plot(mod.lm, which=1, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod.lm, which=1, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   scale-location plot
+plot(mod.lm, which=3, pch=20)
+grid()
+abline(h=0, lty=3)
+plot.lmSim(mod.lm, which=3, SEED=1)
+grid()
+abline(h=0, lty=3)
+
+#   q-q plot
+plot(mod.lm, which=2, pch=20)
+grid()
+plot.lmSim(mod.lm, which=2, SEED=1)
+grid()
+par(op)
+
+#   REMARK: Nice model! So we can trust the test results.
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (d) Interaction plot
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+op <- par(mfrow=c(1,2))
+interaction.plot(x.factor=data$Car, trace.factor=data$Town, response=data$KMP4L, fun=mean, ylim=c(25,50),
+                 xlab="Car", trace.label="Town", ylab="Mean of Fuel Consumation",
+                 main="Interaction Plot")
+abline(v=data$Car, lty=3, col="gray")
+
+interaction.plot(x.factor=data$Town, trace.factor=data$Car, response=data$KMP4L, fun=mean, ylim=c(25,50),
+                 xlab="Humidity", trace.label="Brand", ylab="Mean of Fuel Consumation",
+                 main="Interaction Plot")
+abline(v=data$Town, lty=3, col="gray")
+par(op)
+
+#   REMARKS: In the interaction plot, the interactions between Town and Car are clearly seen in the form of 
+#             overlapping polygonal lines.
+#            Particularly striking is the behavior in the city of San Francisco,
+#            which shows a completely different behavior than the other two cities.
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (e) ANOVA for each City
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+mod.LA <- aov(KMP4L ~ Car, data, subset=data$Town=="Los Angeles")
+summary(mod.LA)
+
+mod.SF <- aov(KMP4L ~ Car, data, subset=data$Town=="San Francisco")
+summary(mod.SF)
+
+mod.Po <- aov(KMP4L ~ Car, data, subset=data$Town=="Portland")
+summary(mod.Po)
+
+#   R allows to do the above in one line! Cool!
+by(data, data$Town, function(x){ summary(aov(KMP4L ~ Car, data=x))} )
+
+#   REMARK: In every town the factor "Car" is highly significant.
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (f) ANOVA without San Francisco
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+mod.red1 <- aov(KMP4L ~ Car * Town, data, subset=data$Town!="San Francisco")
+summary(mod.red1)
+
+#   REMARK: Now, neither the factor "Town" nor the interaction "Car:Town" are significant.
+#           This is not surprising if we observe the interaction plot correctly.
+#           => F-Test to compare two models.
+
+mod.red2 <- aov(KMP4L ~ Car, data, subset=data$Town!="San Francisco")
+summary(mod.red2)
+
+anova(mod.red1, mod.red2)
+
+#   REMARK: The P-value is 0.2379 > 0.05.
+#           There are no hints that the more difficult model is better than the model with an interaction.
+#           =>  According to the principle of simplicity, we opt for the simpler model.
