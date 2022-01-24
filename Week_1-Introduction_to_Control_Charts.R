@@ -6,17 +6,17 @@
 
 #*******************************************************************************
 # Problem 1.3.3
-# The data setsample.datcontains 3 random sampleswith 20 entries. These are 
+# The data set sample.dat contains 3 random sampleswith 20 entries. These are 
 # each 3 temperature measurements on 20 days. Load the data setsample.dat in R.
 #*******************************************************************************
 # a. Examine the structure of the data with using the commandstr(data).
-# b. Withsummary(data)you will receive a summary of the most important statistics.
-# c. Graph the samples withplot. Withhelp(plot)you will obtain help.
+# b. With summary(data) you will receive a summary of the most important statistics.
+# c. Graph the samples with plot. With help(plot) you will obtain help.
 # d. Calculate the mean, median, variance and standard deviation for each day.  
-#	This iselegantly done with apply. Add the mean value in the above graphic.
+#	    This is elegantly done with apply. Add the mean value in the above graphic.
 # e. Create a histogram and a box plot of the mean values. Use hist and boxplot.
 # f. Are the variables x1 and x2 significantly different? 
-#	Uset.test. Are the requirementsfor thet-test met? Useqqnorm.
+#	    Use t.test. Are the requirements for thet-test met? Useqqnorm.
 #------------------------------------------------------------------------------
 
 path <- file.path("04_Datasets", "sample.dat")
@@ -34,6 +34,7 @@ data$median <- apply(data[,1:n], 1, median); data$median
 data$sd <- apply(data[,1:n], 1, sd); data$sd
 data$var <- apply(data[,1:n], 1, var); data$var
 plot(data[,1:4])
+head(data)
 
 dev.off
 hist(data[,"mean"]) # oder 
@@ -59,7 +60,7 @@ dev.off()
 
 #*******************************************************************************
 # Problem 1.3.4 (Normal Distribution)
-# A machine produces metal plates with averagethickness?= 8.00 mm and 
+# A machine produces metal plates with average thickness?= 8.00 mm and 
 # standard deviations= 0.05 mm. The slightly fluctuating platethickness is 
 # assumed to be normally distributed.
 #*******************************************************************************
@@ -76,7 +77,7 @@ sd <- 0.05
 ## What is the probability of the thickness >= 8.10 mm 
 ## P(8.10 <= X):
 pnorm(q = 8.10, mean = mu, sd = sd, lower.tail = FALSE)
-# Probability of 22.75%
+# Probability of 2.275%
 
 # b.
 ## What is the probability of the thickness 7.92 <= X <= 8.08
@@ -105,11 +106,11 @@ pnorm(q = 8.10, mean = mu, sd = sd, lower.tail = FALSE)
 #           the histogram.
 # c. Repeat the task for n = 2, 10, 100.
 #------------------------------------------------------------------------------
-n <- 500
-m <- 5
+n <- 5
+m <- 500
 set.seed(1337)
 df.sim <- as.data.frame(matrix(rnorm(m*n,mean=0,sd=1), m, n))
-glimpse(df.sim)
+head(df.sim)
 str(df.sim)
 
 # a.
@@ -119,16 +120,17 @@ for(i in 1:n){
 }
 
 # b.
-df$mean <- apply(df[,1:n], 1, mean)
+df.sim$mean <- apply(df.sim[,1:n], 1, mean)
 ?hist
-hist(df$mean, breaks = 100)
+hist(df.sim$mean, breaks = 100)
 
 # b. (i)
-qqnorm(df$mean)
-qqline(df$mean, col = "red")
+qqnorm(df.sim$mean)
+qqline(df.sim$mean, col = "red")
 
 # b. (ii)
 ?dnorm
-hist(df$mean, , breaks = 100, feq = FALSE)
+hist(df.sim$mean, , breaks = 100, freq = FALSE)
 curve(dnorm(x, mean = 0, sd = 1/sqrt(n)), from = -4, to = 4, add = TRUE)
 # is this curve really ok?
+
