@@ -308,7 +308,7 @@ interaction.plot(x.factor=data$Car, trace.factor=data$Town, response=data$KMP4L,
 abline(v=data$Car, lty=3, col="gray")
 
 interaction.plot(x.factor=data$Town, trace.factor=data$Car, response=data$KMP4L, fun=mean, ylim=c(25,50),
-                 xlab="Humidity", trace.label="Brand", ylab="Mean of Fuel Consumation",
+                 xlab="Town", trace.label="Car", ylab="Mean of Fuel Consumation",
                  main="Interaction Plot")
 abline(v=data$Town, lty=3, col="gray")
 par(op)
