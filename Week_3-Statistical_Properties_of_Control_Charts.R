@@ -135,7 +135,7 @@ text(rep(1,1), s.CL, labels = c("LCL", "CL", "UCL"), pos = 3)
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 # estimatioin of the process standard deviations
 c4 <- 0.9213
-sigma.s.hat <- s.bar / c4; sigma.hat
+sigma.s.hat <- s.bar / c4; sigma.s.hat
 
 # calculation of process mean
 x.barbar <- mean(as.matrix(df[,1:4])); x.barbar
@@ -195,7 +195,14 @@ abline(v=0, h=0)
 #   Probability of an omitted alarm
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Not yet done
+#   beta
+Delta.mu <- 0.015
+delta <- Delta.mu / sigma
+beta <- func.OC(delta, n=4);  beta
+
+#   add lines
+lines(c(0,delta), c(beta,beta), col=2, lty=2)
+abline(v=delta, col=2, lty=2)
 
 #*******************************************************************************
 # Problem 3.6.3 (Geometric distribution I)
@@ -258,7 +265,7 @@ text(rep(1,1), s.CL, labels = c("LCL", "CL", "UCL"), pos = 3)
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 # estimatioin of the process standard deviations
 c4 <- 0.9213
-sigma.s.hat <- s.bar / c4; sigma.hat
+sigma.s.hat <- s.bar / c4; sigma.s.hat
 
 # calculation of process mean
 x.barbar <- mean(as.matrix(df[,1:4])); x.barbar
@@ -308,7 +315,6 @@ abline(v = 0, h = 0)
 Delta.mu <- 0.015
 delta <- Delta.mu / sigma
 ARL <- 1/func.g.tilde(delta, n=4);  ARL
-##  1.006215
 
 #   add lines
 lines(c(0,delta), c(ARL,ARL), col=2, lty=2)
@@ -355,9 +361,6 @@ sigma.R.hat <- R.bar / d2;    sigma.R.hat
 #   Estimation of the Approximate Capability Process Ratio
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 PCR.s.hat <- (USL - LSL) / (6*sigma.s.hat);   PCR.s.hat
-##  1.406035
-
-PCR.R.hat <- (USL - LSL) / (6*sigma.R.hat);   PCR.R.hat
-##  1.409435
 
 #   REMARK: The process capability is guaranteed.
+
