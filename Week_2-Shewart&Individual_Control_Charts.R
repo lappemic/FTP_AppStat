@@ -153,6 +153,7 @@ text(rep(1,3), R.CL.red, label = c("LCS", "CL", "UCL"), pos = 3)
 # Check the remaining 5 measurements:
 abline(v = 20, col = 3, lty = 4)
 points(21:25, df[21:25,"R"])
+lines(20:25, df[20:25,"R"])
 #   REMARK: The process is under control
 
 # Plotting the x.bar chart from the R chart
@@ -175,7 +176,7 @@ plot(df20$mean, pch = 20, ylim = c(15, 18), xlim = c(0, 25),
 lines(df20$mean)
 abline(h = x.bar.CL, lty = c(2, 1, 2))
 points(12, df20$mean[12], col = 2, pch = 4, cex = 4)
-text(rep(1, 3), x.bar.CL, label = c("LCS", "CL", "UCL"), pos = 3)
+text(rep(1, 3), x.bar.CL, label = c("LCL", "CL", "UCL"), pos = 3)
 abline(v = 20, col = 3, lty = 4)
 #   REMARK: The process is under control
 
@@ -235,7 +236,7 @@ plot(df$current, pch = 20, ylim = c(0, 70),
      main = "Individuals Control Charts")
 lines(df$current)
 abline(h = CL, lty = c(2, 1, 2))
-text(rep(1, 3), CL, label = c("LCS", "CL", "UCL"), pos = 3)
+text(rep(1, 3), CL, label = c("LCL", "CL", "UCL"), pos = 3)
 # identify(df$current)  # decomment and click in the graphic to identify outliers
                         #   finish by clicking on "finish" in the top right of
                         #   of the graphic
@@ -263,7 +264,7 @@ plot(df$current[-ind], pch = 20, ylim = c(0, 70),
 lines(df$current[-ind])
 abline(h = CL.red, lty = c(2, 1, 2))
 text(rep(1,3), CL.red, label=c("LCL", "CL", "UCL"), pos=3)
-# identify(df$current[-ind])
+#identify(df$current[-ind])
 #   NOTE: Process still not under control -> 26 is too big
 
 # Remove measurement 26
@@ -330,7 +331,7 @@ text(rep(1,3), c(LCL[3], p.bar, UCL[3]), label=c("LCL", "CL", "UCL"), pos=3)
 # -> Measurements 12, 15, 22 are outliers
 
 # Control Chart with reduced data
-ind <- c(12, 22)    # Because measurement is below LCL this is irrelevant
+ind <- c(12, 22)    # Because measurement 15 is below LCL this is irrelevant
 df.red <- df[-ind,]; str(df.red)
 
 # proportion of bad parts
@@ -402,3 +403,4 @@ pbinom(q = q, size = n, prob = p, lower.tail = FALSE)
 
 #
 # 
+
