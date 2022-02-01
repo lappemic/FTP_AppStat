@@ -159,7 +159,7 @@ par(op)
 #   3.  q-q plot is okay.
 #       => There is no hint that the residuals are not normally distributed.
 
-#   CONCLUSION: The fit is satisfactory. But let us try als the square-root transformation.
+#   CONCLUSION: The fit is satisfactory. But let us try also the square-root transformation.
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 #   2. Variant
@@ -788,3 +788,4 @@ barplot(data$Pressure)
 #   REMARK: We observe that the variable Pressure is ordered 
 #           (except observation i=14). Therefore, the original order is very likely lost.
 #           => An investigation of the correlation of the residuals is meaningless.
+
