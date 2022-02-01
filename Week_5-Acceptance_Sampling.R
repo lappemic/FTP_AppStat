@@ -259,6 +259,8 @@ lines(tapply(df$diam, df$sample, mean))
 #*    package qcc.
 #*------------------------------------------------------------------------------
 df.grouped <- qcc.groups(df$diam, df$sample)
+df
+df.grouped
 str(df.grouped)
 head(df.grouped)
 #*------------------------------------------------------------------------------
@@ -313,10 +315,11 @@ plot(qcc.cusum, nsigmas = 3)
 #* b. Create a EWMA chart with λ = 0.3.
 #*------------------------------------------------------------------------------
 lambda <- 0.3
-qcc.ewma <- ewma(df.g, type = "xbar", target = mu0, plot = FALSE)
-summary(qcc.ewma)
+q <- ewma(df.g, type="xbar", target=64.000, plot=FALSE)
+summary(q)
 
-plot(qcc.ewma, lambda = lambda, nsigmas = 3)
+plot(q, lambda = lambda, nsigmas=3)
+
 #   NOTE: Process is under control
 
 
@@ -394,7 +397,7 @@ process.capability(qcc.PC, spec.limits = c(LSL, USL))
 #* • C_p > 1 implies a reject rate of less than α · 100% = 0.27%, 
 #*    i.e. the process capability is guaranteed.
 #*    
-#*    C_p is > 1so the process capability is guaranteed with a reject
+#*    C_p is > 1, so the process capability is guaranteed with a reject
 #*      rate less than 0.27%
 
 
@@ -424,3 +427,4 @@ p.beta <- 0.05
 
 #   Utility function for finding sampling plans
 find.plan(PRP=c(p.alpha, 1-alpha), CRP=c(p.beta, beta), type="hypergeom", N=11000)
+
