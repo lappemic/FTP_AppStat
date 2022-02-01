@@ -107,7 +107,8 @@ abline(mod)
 
 #*------------------------------------------------------------------------------
 #* d. Does the data support the hypothesis that Venice sinks?
-#*------------------------------------------------------------------------------   null hypothesis        H0: slope=0
+#*------------------------------------------------------------------------------   
+#   null hypothesis        H0: slope=0
 #   alternative hypothesis H1: slope <> 0
 beta10 <- 0
 
@@ -190,25 +191,25 @@ plot(df$DCOutput ~ df$WindVelocity.inv)
 #*    Give the estimated parameter values and the standard errors.
 #*------------------------------------------------------------------------------
 
-mod <- lm(df$DCOutput ~ df$WindVelocity.inv)
+mod.inv <- lm(df$DCOutput ~ df$WindVelocity.inv)
 
 # Parameter values and standard errors
-summary(mod)
+summary(mod.inv)
 
 # Or accessed directly
 ## Parameter values (beta_0 and beta_1)
-mod$coefficients
+mod.inv$coefficients
 
 ## Standard errors
-summary(mod)$coefficients[,2]
+summary(mod.inv)$coefficients[,2]
 
 #*------------------------------------------------------------------------------
 #* c. Calculate the 99% conﬁdence interval on β_1.
 #*------------------------------------------------------------------------------
-confint(mod, level = 0.99)
+confint(mod.inv, level = 0.99)
 
 # Or beta_1 accessed directly:
-confint(mod, parm = 2, level = 0.99)
+confint(mod.inv, parm = 2, level = 0.99)
 
 #*------------------------------------------------------------------------------
 #* d. Add the best model to the scatter diagram DC output versus the inverse 
@@ -222,7 +223,7 @@ grid()
 
 #   original variable
 WV.new <- data.frame(WindVelocity.inv=seq(0.2*min(1/df$WindVelocity), 
-                                          2*max(1/data$WindVelocity), 
+                                          2*max(1/df$WindVelocity), 
                                           length=101))
 DCOutput.pred <- predict(mod.inv, newdata=WV.new)
 plot(DCOutput ~ WindVelocity, df, pch=20, xlim=c(0,50), ylim=c(0,3), 
@@ -393,7 +394,7 @@ confint(model.log.2, parm = 2, level = 0.95)
 #* Checking in which range the prediction will be
 range(df$Pressure)
 
-df.new <- data.frame(Pressure.log = log10(seq(15, 35, by = 0.1)))
+df.pred <- data.frame(Pressure.log = log10(seq(15, 35, by = 0.1)))
 
 Boil.confint <- predict(model.log.2, newdata = df.new,
                         interval = "confidence",
@@ -423,7 +424,7 @@ lines(df.pred$Pressure, Boil.confint[,"upr"], lty=2)
 Boil.preds <- predict(model.log.2, newdata = df.new,
                       interval = "prediction",
                       level = 0.95)
-Boil.preds[df.new$Pressure.log == log10(26),]
+Boil.preds[df.pred$Pressure.log == log10(26),]
 
 #   NOTE: The prediction interval is wider than the confidenceinterval
 
@@ -479,92 +480,38 @@ for(i in 1:100){
 #*    For each simulated data set add the best straight line. Observe the 
 #*    scattering of the points and its corresponding regression line. 
 #*------------------------------------------------------------------------------
-sigma <- 5
+#   create data without measurement errors but with random x-values
+set.seed(1)
 n <- 20
-set.seed(1337)
+x <- runif(n, min=0, max=50)
+beta0 <- 5
+beta1 <- 3
+y <- beta0+beta1*x
+
+sigma <- 5
+set.seed(1)
 for(i in 1:100){
-  E <- rnorm(n, mean = 0, sd = sigma)
+  E <- rnorm(n, mean=0, sd=sigma)
   Y <- y + E
-  # estimation
+  #   estimation
   mod <- lm(Y ~ x)
-  # graphic
-  plot(x, Y, pch = 20, xlim = c(0, 50), ylim = c(0, 160),
-       main = "Data Set with Simulated Errors")
-  abline(v = x, lty = 3, col = "grey")
-  abline(a = 5, b = 3)
-  abline(mod, col = "red")
+  #   graphic
+  plot(x, Y, pch=20, xlim=c(0,50), ylim=c(0,160), main="Data Set with Simulated Errors")
+  abline(v=x, lty=3, col="gray")
+  abline(a=5, b=3)
+  abline(mod, col="red")
   dev.flush()
   Sys.sleep(0.2)
 }
 
-#   NOTE: The best straight line differs a lot depending on the errors.
 
-#*------------------------------------------------------------------------------
-#* b. For each data set with simulated errors record the estimated parameters 
-#*    β_0 and β_1 in two separate vectors. Plot the two empirical distributions
-#*    of these estimated parameters using histograms with the argument freq=F. 
-#*    For each histogram add the density of the theoretical distribution. 
-#*    Compare the means and the standard deviations of the simulated parameter 
-#*    vectors with the theoretical parameters.
-#*------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (b) Simulation with 100 Replications
+#--------------------------------------------------------------------------------------------------------------------------------------------------
 beta0.sim <- NULL
 beta1.sim <- NULL
-set.seed(1337)
-
-for(i in 1:100){
-  E <- rnorm(n, mean = 0, sd = sigma)
-  Y <- y + E
-  # estimation
-  mod <- lm(Y ~ x)
-  beta0.sim[i] <- coefficients(mod)[1]
-  beta1.sim[i] <- coefficients(mod)[2]
-}
-
-# distributions of beta0 and beta1 with theoretical distributions
-op <- par(mfrow = c(1, 2))
-
-# Intercept
-sd0.theory <- sigma*sqrt(1/n+mean(x)^2 / sum((x-mean(x))^2))
-hist(beta0.sim, xlab = "beta0", freq = F, ylim = c(0, 0.2),
-     breaks = seq(-10, 15, by = 1),
-     xlim = range(pretty(beta0.sim)),
-     col = "gray")
-
-abline(v = mean(beta0.sim) + sd(beta0.sim) * c(-1, 0, 1), col = "blue",
-       lwd = 2)
-
-abline(v = beta0 + sd0.theory * c(-1, 0, 1), col = "red")
-
-curve(dnorm(xi, mean = beta0, sd = sd0.theory),
-      xname = "xi", from = range(pretty(beta0.sim))[1],
-      to = range(pretty(beta0.sim))[2], n = 1001,
-      col = "red", add = T)
-
-# slope
-sd1.theory <- sqrt(sigma^2 / sum((x - mean(x))^2))
-hist(beta1.sim, xlab = "beta1", freq = F, ylim = c(0, 6), 
-     breaks = seq(2,4, by = 0.05), xlim = range(pretty(beta1.sim)), col = "gray")
-
-abline(v = mean(beta1.sim) + sd(beta1.sim) * c(-1, 0, 1), col = "blue",
-       lwd = 2)
-
-abline(v = beta1 + sd1.theory * c(-1, 0, 1), col = "red")
-
-curve(dnorm(xi, mean = beta1, sd = sd1.theory), xname = "xi", 
-      from = range(pretty(beta1.sim))[1],
-      to = range(pretty(beta1.sim))[2], 
-      n = 1001, col = "red", add = T)
-
-par(op)
-
-
-#*------------------------------------------------------------------------------
-#* c. Repeat the above with 10000 simulations. What do you observe?
-#*------------------------------------------------------------------------------
-beta0.sim <- NULL
-beta1.sim <- NULL
-set.seed(1337)
-for(i in 1:10000){
+set.seed(1)
+for(i in 1:20){
   E <- rnorm(n, mean=0, sd=sigma)
   Y <- y + E
   #   estimation
@@ -579,33 +526,59 @@ op <- par(mfrow=c(1,2))
 sd0.theory <- sigma*sqrt(1/n+mean(x)^2/sum((x-mean(x))^2))
 hist(beta0.sim, xlab="beta0", freq=F, ylim=c(0,0.2), breaks=seq(-10,15,by=1), 
      xlim=range(pretty(beta0.sim)), col="gray")
-
 abline(v=mean(beta0.sim)+sd(beta0.sim)*c(-1,0,1), col="blue", lwd=2)
-
 abline(v=beta0+sd0.theory*c(-1,0,1), col="red")
-
-curve(dnorm(xi, mean=beta0, sd=sd0.theory), xname="xi", 
-      from=range(pretty(beta0.sim))[1], 
-      to=range(pretty(beta0.sim))[2], 
-      n=1001, col="red", add=T)
+curve(dnorm(xi, mean=beta0, sd=sd0.theory),
+      xname="xi", from=range(pretty(beta0.sim))[1], 
+      to=range(pretty(beta0.sim))[2], n=1001, 
+      col="red", add=T)
 
 #   slope
 sd1.theory <- sqrt(sigma^2/sum((x-mean(x))^2))
 hist(beta1.sim, xlab="beta1", freq=F, ylim=c(0,6), breaks=seq(2,4,by=0.05), 
      xlim=range(pretty(beta1.sim)), col="gray")
-
 abline(v=mean(beta1.sim)+sd(beta1.sim)*c(-1,0,1), col="blue", lwd=2)
-
 abline(v=beta1+sd1.theory*c(-1,0,1), col="red")
-
-curve(dnorm(xi, mean=beta1, sd=sd1.theory), xname="xi", 
-      from=range(pretty(beta1.sim))[1], 
-      to=range(pretty(beta1.sim))[2], 
-      n=1001, col="red", add=T)
-
+curve(dnorm(xi, mean=beta1, sd=sd1.theory),
+      xname="xi", from=range(pretty(beta1.sim))[1], to=range(pretty(beta1.sim))[2], n=1001, col="red", add=T)
 par(op)
 
-#   REMARKS: The more simulations are carried out, the closer are the expected 
-#             values calculated from the simulation results to the theoretical 
-#             values. This has to be this way: if we repeat the simulation 
-#             infinitely often, then the theoretical value would come out.
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#   (c) Simulation with 10000 Replications
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+beta0.sim <- NULL
+beta1.sim <- NULL
+set.seed(1)
+for(i in 1:10000){
+  E <- rnorm(n, mean=0, sd=sigma)
+  Y <- y + E
+  #   estimation
+  mod <- lm(Y ~ x)
+  beta0.sim[i] <- coefficients(mod)[1]
+  beta1.sim[i] <- coefficients(mod)[2]
+}
+
+#   distributions of beta0 and beta1 with theoretical distributions
+op <- par(mfrow=c(1,2))
+#   intercept
+sd0.theory <- sigma*sqrt(1/n+mean(x)^2/sum((x-mean(x))^2))
+hist(beta0.sim, xlab="beta0", freq=F, ylim=c(0,0.2), breaks=seq(-10,15,by=1), xlim=range(pretty(beta0.sim)), col="gray")
+abline(v=mean(beta0.sim)+sd(beta0.sim)*c(-1,0,1), col="blue", lwd=2)
+abline(v=beta0+sd0.theory*c(-1,0,1), col="red")
+curve(dnorm(xi, mean=beta0, sd=sd0.theory),
+      xname="xi", from=range(pretty(beta0.sim))[1], to=range(pretty(beta0.sim))[2], n=1001, col="red", add=T)
+
+#   slope
+sd1.theory <- sqrt(sigma^2/sum((x-mean(x))^2))
+hist(beta1.sim, xlab="beta1", freq=F, ylim=c(0,6), breaks=seq(2,4,by=0.05), xlim=range(pretty(beta1.sim)), col="gray")
+abline(v=mean(beta1.sim)+sd(beta1.sim)*c(-1,0,1), col="blue", lwd=2)
+abline(v=beta1+sd1.theory*c(-1,0,1), col="red")
+curve(dnorm(xi, mean=beta1, sd=sd1.theory),
+      xname="xi", from=range(pretty(beta1.sim))[1], to=range(pretty(beta1.sim))[2], n=1001, col="red", add=T)
+par(op)
+
+#   REMARKS: The more simulations are carried out, the closer are the expected values calculated from the simulation results
+#            to the theoretical values.
+#            This has to be this way: if we repeat the simulation infinitely often, then the theoretical value would come out.
+
