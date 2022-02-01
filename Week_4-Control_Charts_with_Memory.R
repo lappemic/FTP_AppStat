@@ -57,6 +57,7 @@ points(0:n, -C.minus, pch = 20, col = "gray")
 lines(0:n, -C.minus, col = "gray")
 abline(h = c(-1, 0, 1) * H, lty = c(2, 1, 2))
 text(rep(2, 3), c(-1,1) * H, label = c("Lower CUSUM", "Upper CUSUM"), pos = 3)
+
 #   NOTE: The process is under control. But we recognise something going
 #         on in the last 4 measurements (increasing trend). So we have to 
 #         watch the process closely in the next few measurements
@@ -162,7 +163,7 @@ sigma <- 2
 # Creating dataset
 set.seed(1)
 data.simulated <- rnorm(k*n, mean = mu_0, sd = sigma)
-df <- data.frame(matrix(data.simulated, nrow = 50, ncol = n))
+df <- data.frame(matrix(data.simulated, nrow = k, ncol = n))
 str(df)
 
 # means, standard deviations and Ranges
@@ -210,6 +211,7 @@ points(0:k, -C.minus, pch = 20, col = "gray")
 lines(0:k, -C.minus, col = "gray")
 abline(h = c(-1, 0, 1) * H, lty = c(2, 1, 2))
 text(rep(2, 3), c(-1, 1) * H, label = c("Lower CUSUM", "Upper CUSUM"), pos = 3)
+
 #*------------------------------------------------------------------------------
 #* b. Now add a synthetic process drift of ∆µ = 1.4 from sample i = 21 to the 
 #*    data and look at the resulting CUSUM chart. 
@@ -234,13 +236,13 @@ s.bar.mod <- mean(df.mod$sd); s.bar.mod
 # process standard deviation
 # wrong: c4 <- 0.9213 because n = 8 and not 4!!!!
 c4 <- 0.9650     #   from table for n=8
-sigma.hat.mod <- s.bar / c4; sigma.hat.mod
+sigma.hat.mod <- s.bar.mod / c4; sigma.hat.mod
 
 # reference value
-K.mod <- 0.5 * sigma.hat; K.mod
+K.mod <- 0.5 * sigma.hat.mod; K.mod
 
 # decision interval
-H.mod <- 5 * sigma.hat; H.mod
+H.mod <- 5 * sigma.hat.mod; H.mod
 
 # C^+ and C^- CUSUMs
 C.plus.mod <- NULL
@@ -262,13 +264,21 @@ lines(0:k, C.plus.mod, col = "black")
 points(0:k, -C.minus.mod, pch = 20, col = "gray")
 lines(0:k, -C.minus.mod, col = "gray")
 abline(h = c(-1, 0, 1) * H.mod, lty = c(2, 1, 2))
-text(rep(4, 3), c(-1, 1) * H.mod, label = c("Lower CUSUM", "Upper CUSUM"), pos =
+text(rep(4, 3), c(-1, 1) * H.mod, label = c("Lower CUSUM", "Upper CUSUM"), pos = 3)
 #   NOTE: The process is not under control anymore!
 
 #*------------------------------------------------------------------------------
 #* c. From time i = 20 plot the expected line on which the process drifts away.
 #*------------------------------------------------------------------------------
-3)
+
+#   expected slope of the drift
+func.drift <- function(x) { if(delta.mu>0){ step <- max(0, delta.mu - K.mod)
+                                            pmax(0, step * (x - 20))
+} else { 
+  step <- min(0, delta.mu + K.mod)
+  pmin(0, step * (x - 20))}
+}
+
 curve(func.drift(x), add=TRUE, col="red")
 
 #* -----------------------------------------------------------------------------
@@ -277,7 +287,7 @@ curve(func.drift(x), add=TRUE, col="red")
 #* Same code as before in b), just changed delta.mu and that all samples are 
 #* affected!
 delta.mu <- 3
-df.mod <- df[1:50, 1:n] + delta.mu)
+df.mod <- df[1:50, 1:n] + delta.mu
 str(df.mod)
 
 # means, standard deviations and Ranges
@@ -314,7 +324,7 @@ C.plus.mod
 C.minus.mod
 
 # CUSUM Chart
-plot(0:k, C.plus.mod, col = "black", pch = 20, ylim = c(-1, 2)*H.mod,
+plot(0:k, C.plus.mod, col = "black", pch = 20, ylim = c(-1, 6)*H.mod,
      xlab = "Index", ylab = "Cumulative Sums", main = "CUSUM with simulated data")
 lines(0:k, C.plus.mod, col = "black")
 points(0:k, -C.minus.mod, pch = 20, col = "gray")
@@ -531,3 +541,4 @@ text(rep(k,2), c(LCL[21],UCL[21]), label=c("LCL", "UCL"), pos=1)
 for(i in 1:n){ points(1:k, df.mod[,i]) }
 
 #   REMARK: The process is no longer under control.
+
